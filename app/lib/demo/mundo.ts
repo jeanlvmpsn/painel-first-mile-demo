@@ -481,7 +481,7 @@ export function dia(iso: string): Dia {
       const start = 9 * 60 + r.int(0, 8) * 15;
       let t = start + 30;
       rotas.push({
-        nome: `CPS_${cl}_MEL_${String(k + 1).padStart(3, "0")}`,
+        nome: `CPS_${cl}_EXP_${String(k + 1).padStart(3, "0")}`,
         id: novoId(),
         cluster: cl,
         tipo: "express",
