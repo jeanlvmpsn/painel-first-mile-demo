@@ -112,7 +112,7 @@ import {
 } from "../app/lib/avulsas.ts";
 
 test("os quatro motivos aposentados sairam da lista", () => {
-  const fora = ["Atrasos MeliOne", "Coleta cedo demais no place", "Apoio", "Revertido pela mesma TSP"];
+  const fora = ["Atrasos Express", "Coleta cedo demais no place", "Apoio", "Revertido pela mesma TSP"];
   for (const m of fora) assert.equal(MOTIVOS.includes(m), false, m);
   assert.equal(MOTIVOS.length, 19);
 });

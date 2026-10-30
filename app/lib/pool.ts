@@ -52,8 +52,8 @@ export function motivoDeFora(pedido: {
   transportadora: string;
   perfil: string;
 }): string | null {
-  if (/melione/i.test(String(pedido.perfil ?? ""))) {
-    return "Melione — o pool dessas rotas fica em outra base";
+  if (/express/i.test(String(pedido.perfil ?? ""))) {
+    return "Express — o pool dessas rotas fica em outra base";
   }
   if (FORA.has(String(pedido.transportadora ?? "").trim().toUpperCase())) {
     return "sem pool declarado em CPS";

@@ -22,12 +22,12 @@ export type RotaPlanejada = {
   doHistorico?: boolean;
 };
 
-export type TipoRota = "FM" | "MeliOne";
+export type TipoRota = "FM" | "Express";
 
 export function tipoDaRota(tipoRota: string | undefined): TipoRota | null {
   const t = String(tipoRota ?? "").trim().toLowerCase();
   if (!t) return null;
-  return t === "melione" ? "MeliOne" : "FM";
+  return t === "express" ? "Express" : "FM";
 }
 
 export const PERFIS = [

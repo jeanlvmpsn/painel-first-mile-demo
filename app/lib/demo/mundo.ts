@@ -118,7 +118,7 @@ export const TRANSPORTADORAS = [
   "Vértice Cargas",
   "Zênite Log",
 ] as const;
-export const TRANSPORTADORA_MELIONE = "Frota Própria";
+export const TRANSPORTADORA_EXPRESS = "Frota Própria";
 export const TRANSPORTADORA_SEM_DONO = "A DEFINIR";
 
 export const PERFIS_VEICULO = [
@@ -228,7 +228,7 @@ function montarMotoristas(): Motorista[] {
       id: String(r.int(10000000, 99999999)),
       placa: placa(r),
       perfil: r.chance(0.5) ? PERFIS_VEICULO[0] : PERFIS_VEICULO[1],
-      transportadora: TRANSPORTADORA_MELIONE,
+      transportadora: TRANSPORTADORA_EXPRESS,
     });
   }
   return lista;
@@ -283,7 +283,7 @@ export type RotaDia = {
   nome: string;
   id: string;
   cluster: string;
-  tipo: "first_mile" | "melione";
+  tipo: "first_mile" | "express";
   dedicada: boolean;
   avulsa: boolean;
   transportadora: string;
@@ -469,7 +469,7 @@ export function dia(iso: string): Dia {
     });
   }
 
-  // MeliOne: frota propria, poucas rotas nos clusters centrais.
+  // Express: frota propria, poucas rotas nos clusters centrais.
   if (!domingo) {
     const centrais = pontos().filter((p) => ["C01", "C02", "C03"].includes(p.cluster) && p.media < 80);
     const qtd = sabado ? 4 : 8;
@@ -477,17 +477,17 @@ export function dia(iso: string): Dia {
       const cl = ["C01", "C02", "C03"][k % 3];
       const escolha = centrais.filter((p) => p.cluster === cl && r.chance(0.18)).slice(0, 5);
       if (!escolha.length) continue;
-      const motorista = motoristaPara(TRANSPORTADORA_MELIONE, "VUC");
+      const motorista = motoristaPara(TRANSPORTADORA_EXPRESS, "VUC");
       const start = 9 * 60 + r.int(0, 8) * 15;
       let t = start + 30;
       rotas.push({
         nome: `CPS_${cl}_MEL_${String(k + 1).padStart(3, "0")}`,
         id: novoId(),
         cluster: cl,
-        tipo: "melione",
+        tipo: "express",
         dedicada: false,
         avulsa: false,
-        transportadora: TRANSPORTADORA_MELIONE,
+        transportadora: TRANSPORTADORA_EXPRESS,
         emAberto: false,
         start,
         perfil: "VUC",

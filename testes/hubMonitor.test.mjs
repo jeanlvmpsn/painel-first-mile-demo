@@ -48,11 +48,11 @@ test("filtroCps: dia util (ninguem de outro hub) nao tira nada", () => {
   assert.equal(f.rotasFora, 0);
 });
 
-test("outrosHubsDaAtribuicao: pela coluna HUB (regiao), MeliOne fica de fora", () => {
+test("outrosHubsDaAtribuicao: pela coluna HUB (regiao), Express fica de fora", () => {
   const r = outrosHubsDaAtribuicao([
     { rota: "CAMPINAS_C01_1", regiao: "CPS", tipoRota: "first_mile" },
     { rota: "CAMPINAS_C01_2", regiao: "BRXSP5", tipoRota: "first_mile" },
-    { rota: "CAMPINAS_C07_186", regiao: "SSP12", tipoRota: "melione" },
+    { rota: "CAMPINAS_C07_186", regiao: "SSP12", tipoRota: "express" },
   ]);
   assert.deepEqual(Object.values(r), ["BRXSP5"]);
 });

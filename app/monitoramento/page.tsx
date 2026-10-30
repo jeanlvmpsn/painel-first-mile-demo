@@ -4,7 +4,7 @@ import localFont from "next/font/local";
 import PainelMonitorD0 from "../components/monitoramento/PainelMonitorD0";
 import { chaveRota } from "../lib/hb";
 import { lerMonitorD0 } from "../lib/monitorD0Dados";
-import { ehMelione } from "../lib/melione";
+import { ehExpress } from "../lib/express";
 import { outrosHubsDaAtribuicao } from "../lib/hubMonitor";
 import { getRotasPlanejadas } from "../lib/atribuicoes";
 import { getRotasDoDia } from "../lib/sheets";
@@ -50,10 +50,10 @@ export default async function PaginaMonitoramento() {
       paradas: r.ns?.paradas ?? 0,
       estimados: r.ns?.estimados ?? 0,
     }));
-  const rotasMelione = [
+  const rotasExpress = [
     ...new Set(
       [...planejadas, ...(doForms?.rotas ?? [])]
-        .filter((r) => ehMelione(r.tipoRota))
+        .filter((r) => ehExpress(r.tipoRota))
         .flatMap(chaves)
         .filter(Boolean),
     ),
@@ -61,18 +61,18 @@ export default async function PaginaMonitoramento() {
 
   const idPorRota = new Map((doForms?.rotas ?? []).filter((r) => r.idRota).map((r) => [chaveRota(r.rota), r.idRota ?? ""]));
 
-  const porRotaMelione = new Map<string, { rota: string; rotaId: string; transportadora: string }>();
+  const porRotaExpress = new Map<string, { rota: string; rotaId: string; transportadora: string }>();
   for (const r of [...planejadas, ...(doForms?.rotas ?? [])]) {
-    if (!ehMelione(r.tipoRota) || !r.rota) continue;
+    if (!ehExpress(r.tipoRota) || !r.rota) continue;
     const k = chaveRota(r.rota);
-    const antes = porRotaMelione.get(k);
-    porRotaMelione.set(k, {
+    const antes = porRotaExpress.get(k);
+    porRotaExpress.set(k, {
       rota: r.rota,
       rotaId: idPorRota.get(k) ?? "",
       transportadora: antes?.transportadora || String(r.transportadora ?? "").trim(),
     });
   }
-  const listaMelione = [...porRotaMelione.values()];
+  const listaExpress = [...porRotaExpress.values()];
 
   const outrosHubs = outrosHubsDaAtribuicao(planejadas);
   return (
@@ -97,10 +97,10 @@ export default async function PaginaMonitoramento() {
           rotasSistema={leitura.rotasSistema}
           rotasNs={rotasNs}
           listaNs={listaNs}
-          rotasMelione={rotasMelione}
-          listaMelione={listaMelione}
+          rotasExpress={rotasExpress}
+          listaExpress={listaExpress}
           outrosHubs={outrosHubs}
-          entregasMelione={leitura.entregasMelione}
+          entregasExpress={leitura.entregasExpress}
           saldosPontos={leitura.saldosPontos}
           cargaRotas={leitura.cargaRotas}
           projecaoPontos={leitura.projecaoPontos}

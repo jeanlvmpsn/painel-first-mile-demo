@@ -27,7 +27,7 @@ const isoHora = (iso: string, min: number) => {
 };
 
 export const rotasCps = (iso: string) => dia(iso).rotas.filter((r) => r.hub === "CPS");
-export const veiculoPlanejado = (r: RotaDia) => (r.tipo === "melione" ? "MeliOne VUC" : r.motorista?.perfil.veiculo || r.perfil + " Fixo");
+export const veiculoPlanejado = (r: RotaDia) => (r.tipo === "express" ? "Express VUC" : r.motorista?.perfil.veiculo || r.perfil + " Fixo");
 
 // --- plano do dia (Extracao Config / Formulas) --------------------------------
 
@@ -259,11 +259,11 @@ function rotasSistema(): Celula[][] {
   return linhas;
 }
 
-function melioneEntregas(): Celula[][] {
+function expressEntregas(): Celula[][] {
   const iso = hojeISO();
   const agora = minutoSimulado(iso);
   const linhas: Celula[][] = [["DATA", "ROUTE_ID", "ROTA", "PENDENTES", "FALHAS", "SUCESSO", "PACOTES", "PARADAS", "SACAS", "PARADAS_PENDENTES", "SACAS_ENTREGUES", "CONSULTADO_EM"]];
-  for (const r of rotasCps(iso).filter((x) => x.tipo === "melione")) {
+  for (const r of rotasCps(iso).filter((x) => x.tipo === "express")) {
     const x = rng("mel" + r.id);
     const pacotes = x.int(60, 140);
     const paradas = x.int(18, 40);
@@ -378,7 +378,7 @@ export const ABAS_OPERACAO: Registro = {
     MONITOR_D0_TRATATIVAS: tratativas,
     MONITOR_D0_MOTIVOS: () => [["MOTIVO", "AUTOR", "CRIADO_EM"], ["Chuva forte na região", "Ana (CCO)", "01/10/2026 09:12"]],
     ROTAS_SISTEMA: rotasSistema,
-    MELIONE_ENTREGAS: melioneEntregas,
+    EXPRESS_ENTREGAS: expressEntregas,
     CURVA_SISTEMA: curvaSistema,
   },
   [PROCESSO]: {

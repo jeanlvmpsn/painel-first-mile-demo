@@ -18,7 +18,7 @@ export default function BlocoFechamento({
   titulo = "Report Fechamento total",
   tituloTexto,
   prefixoCampos = "",
-  culpMeliAuto = [],
+  culpOpAuto = [],
 }: {
   fechamento: Fechamento;
   dataBR: string;
@@ -31,12 +31,12 @@ export default function BlocoFechamento({
 
   prefixoCampos?: string;
 
-  culpMeliAuto?: string[];
+  culpOpAuto?: string[];
 }) {
   const [capacidade, setCapacidade] = useCampoDoDia(prefixoCampos + "capacidade", dataBR);
-  const [culpMeli, setCulpMeli] = useCampoDoDia(prefixoCampos + "culp-meli", dataBR);
-  const autoTexto = culpMeliAuto.join("\n");
-  const usandoAuto = !culpMeli.trim() && !!autoTexto;
+  const [culpOp, setCulpOp] = useCampoDoDia(prefixoCampos + "culp-op", dataBR);
+  const autoTexto = culpOpAuto.join("\n");
+  const usandoAuto = !culpOp.trim() && !!autoTexto;
 
   const comCapacidade = useMemo<Fechamento>(() => {
     const limpo = capacidade.replace(/\./g, "").replace(",", ".").trim();
@@ -55,10 +55,10 @@ export default function BlocoFechamento({
       textoFechamento(comCapacidade, dataBR, {
         schedulingsAceitos,
         rotasConfig,
-        manuais: { culpMeli: usandoAuto ? autoTexto : culpMeli },
+        manuais: { culpOp: usandoAuto ? autoTexto : culpOp },
         titulo: tituloTexto,
       }),
-    [comCapacidade, dataBR, schedulingsAceitos, rotasConfig, culpMeli, usandoAuto, autoTexto, tituloTexto]
+    [comCapacidade, dataBR, schedulingsAceitos, rotasConfig, culpOp, usandoAuto, autoTexto, tituloTexto]
   );
 
   const spr = comCapacidade.sprPlan;
@@ -78,18 +78,18 @@ export default function BlocoFechamento({
           onChange={(e) => setCapacidade(e.target.value)}
         />
 
-        <span className="text-sm text-slate-600">Culp Meli</span>
+        <span className="text-sm text-slate-600">Culp Op</span>
         <textarea
-          rows={Math.max(1, culpMeli.split("\n").length)}
+          rows={Math.max(1, culpOp.split("\n").length)}
           placeholder={autoTexto ? "automático pelo Monitoramento D0" : "uma linha por cluster"}
           className="w-56 resize-y rounded border border-slate-300 px-2 py-1 text-sm focus:border-slate-500 focus:outline-none"
-          value={culpMeli}
-          onChange={(e) => setCulpMeli(e.target.value)}
+          value={culpOp}
+          onChange={(e) => setCulpOp(e.target.value)}
         />
         {usandoAuto && (
-          <span className="text-xs text-slate-500" title="Soma por cluster os pontos de culpa Meli com 100+ pacotes pendentes no Monitoramento D0 (top 3). Digitar na caixa substitui; apagar volta ao automático.">
+          <span className="text-xs text-slate-500" title="Soma por cluster os pontos de culpa Operação com 100+ pacotes pendentes no Monitoramento D0 (top 3). Digitar na caixa substitui; apagar volta ao automático.">
             Automático (Monitoramento D0) ·{" "}
-            <button type="button" onClick={() => setCulpMeli(autoTexto)} className="underline hover:text-slate-800">
+            <button type="button" onClick={() => setCulpOp(autoTexto)} className="underline hover:text-slate-800">
               editar
             </button>
           </span>

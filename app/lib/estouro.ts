@@ -41,7 +41,7 @@ export function tipoDoVeiculo(nome: unknown): TipoVeiculo | null {
     if (re.test(t)) return VEICULOS.find((v) => v.tipo === tipo) ?? null;
   }
 
-  if (/MELI\s*ONE/.test(t)) return VEICULOS.find((v) => v.tipo === "Van") ?? null;
+  if (/EXPRESS/.test(t)) return VEICULOS.find((v) => v.tipo === "Van") ?? null;
   return null;
 }
 

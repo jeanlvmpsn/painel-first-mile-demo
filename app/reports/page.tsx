@@ -14,7 +14,7 @@ import {
 import BlocoFechamento from "../components/reports/BlocoFechamento";
 import NavReports from "../components/reports/NavReports";
 import { carregarFechamento } from "../lib/fechamento";
-import { culpMeliDoDia } from "../lib/monitorD0Dados";
+import { culpOpDoDia } from "../lib/monitorD0Dados";
 import { getFechamentoHistorico } from "../lib/sheets";
 import CabecalhoReport from "../components/reports/CabecalhoReport";
 import { CHIP, COR } from "../components/ui/cores";
@@ -114,9 +114,9 @@ export default async function PaginaReports({
 
   const retrato = ehHoje ? null : await getFechamentoHistorico(dataBR);
 
-  const culpMeliAuto = ehHoje
-    ? await culpMeliDoDia(dataBR, minutoSP()).catch(() => [])
-    : (retrato?.CULP_MELI ?? "").split("\n").filter(Boolean);
+  const culpOpAuto = ehHoje
+    ? await culpOpDoDia(dataBR, minutoSP()).catch(() => [])
+    : (retrato?.CULP_OP ?? "").split("\n").filter(Boolean);
   const {
     fechamento: f,
     aceitos,
@@ -357,7 +357,7 @@ export default async function PaginaReports({
           schedulingsAceitos={aceitos}
           rotasConfig={rotasConfig}
           dataISO={dataISO}
-          culpMeliAuto={culpMeliAuto}
+          culpOpAuto={culpOpAuto}
         />
 
         {retrato?.TEXTO_REPORT && (

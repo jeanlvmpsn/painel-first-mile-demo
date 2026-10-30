@@ -176,7 +176,7 @@ function capacidadeVeiculos(): Celula[][] {
     ["HR Fixo", "active", 1950, 11.7],
     ["3/4 Fixo", "active", 3500, 25],
     ["Utilitário Fixo", "active", 500, 2],
-    ["MeliOne VUC", "active", 2000, 14],
+    ["Express VUC", "active", 2000, 14],
   ];
 }
 

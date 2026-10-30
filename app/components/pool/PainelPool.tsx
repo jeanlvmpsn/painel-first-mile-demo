@@ -46,7 +46,7 @@ export type DadosAtribuicaoPool = {
 
   rotas: number;
   emAberto: number;
-  melione: number;
+  express: number;
   assumidos: number;
   motivosSemPool: { motivo: string; quantidade: number }[];
 };
@@ -728,8 +728,8 @@ export default function PainelPool({
                         " rota(s) de CPS na atribuição; fora da conta: " +
                         formatarNumero(atribuicao.emAberto) +
                         " em aberto (sem transportadora ou A DEFINIR) e " +
-                        formatarNumero(atribuicao.melione) +
-                        " MeliOne (pool em outra base)"}
+                        formatarNumero(atribuicao.express) +
+                        " Express (pool em outra base)"}
                       {atribuicao.assumidos > 0 &&
                         " \u00b7 " +
                           formatarNumero(atribuicao.assumidos) +
@@ -915,8 +915,8 @@ export default function PainelPool({
                       nota="sem transportadora ou A DEFINIR — fora da conta"
                     />
                     <Tile
-                      r="MeliOne"
-                      v={formatarNumero(atribuicao.melione)}
+                      r="Express"
+                      v={formatarNumero(atribuicao.express)}
                       cor="text-gray-500"
                       nota="pool em outra base — fora da conta"
                     />

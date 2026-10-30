@@ -66,7 +66,7 @@ export function metricasPrevia(rotas: RotaPlanejada[]): MetricasPrevia {
       atual.hubs.set(hubDaRota, (atual.hubs.get(hubDaRota) ?? 0) + 1);
       semVeiculoPorTp.set(dono, atual);
     }
-    if (tipoDaRota(r.tipoRota) === "MeliOne") m1++;
+    if (tipoDaRota(r.tipoRota) === "Express") m1++;
 
     const h = hubs.get(hubDaRota) ?? { rotas: 0, semTransportadora: 0 };
     h.rotas++;

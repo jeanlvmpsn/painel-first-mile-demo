@@ -5,7 +5,7 @@ const texto = (v: unknown) => String(v ?? "").trim();
 export const RISCO_PENDENTES_MIN = 5;
 export const RISCO_ANTES_COLETA_MIN = 45;
 
-export type EntregasMelione = {
+export type EntregasExpress = {
   rotaId: string;
   rota: string;
   pendentes: number;
@@ -36,8 +36,8 @@ export const minutosDe = (h: string): number | null => {
   return m ? Number(m[1]) * 60 + Number(m[2]) : null;
 };
 
-export function lerEntregasMelione(linhas: string[][], dataBR: string): Record<string, EntregasMelione> {
-  const saida: Record<string, EntregasMelione> = {};
+export function lerEntregasExpress(linhas: string[][], dataBR: string): Record<string, EntregasExpress> {
+  const saida: Record<string, EntregasExpress> = {};
   if (linhas.length < 2) return saida;
   const cab = (linhas[0] ?? []).map((c) => texto(c).toUpperCase());
   const i = (n: string) => cab.indexOf(n);
@@ -61,7 +61,7 @@ export function lerEntregasMelione(linhas: string[][], dataBR: string): Record<s
     if (c.data >= 0 && v(l, c.data) !== dataBR) continue;
     const pendentes = num(v(l, c.pend));
     if (pendentes === null) continue;
-    const e: EntregasMelione = {
+    const e: EntregasExpress = {
       rotaId: v(l, c.id),
       rota: v(l, c.rota),
       pendentes,
@@ -80,14 +80,14 @@ export function lerEntregasMelione(linhas: string[][], dataBR: string): Record<s
   return saida;
 }
 
-export type NivelMelione = "concluidas" | "andamento" | "risco" | "v1" | "v1Logou" | "coletando" | "nsRota";
+export type NivelExpress = "concluidas" | "andamento" | "risco" | "v1" | "v1Logou" | "coletando" | "nsRota";
 
-export function ehMelione10(e: EntregasMelione): boolean {
+export function ehExpress10(e: EntregasExpress): boolean {
   return e.pendentes === 0 && e.sucesso === 0 && e.falhas === 0 && !e.pacotes && !e.paradas && !e.sacas;
 }
 
-export type RiscoMelione = {
-  nivel: NivelMelione;
+export type RiscoExpress = {
+  nivel: NivelExpress;
   feitas: number;
   total: number;
 
@@ -95,8 +95,8 @@ export type RiscoMelione = {
   curto: string;
 };
 
-export function riscoMelione(
-  e: EntregasMelione,
+export function riscoExpress(
+  e: EntregasExpress,
   ctx: {
     inicioColetaMin: number | null;
     janelaIniMin?: number | null;
@@ -108,17 +108,17 @@ export function riscoMelione(
 
     coletando?: boolean;
   },
-): RiscoMelione {
+): RiscoExpress {
   const feitas = e.sucesso + e.falhas;
   const total = feitas + e.pendentes;
   const fracao = feitas + "/" + total;
   const base = "Entregas " + fracao;
-  const r = (nivel: NivelMelione, curto: string, texto = curto): RiscoMelione => ({ nivel, feitas, total, texto, curto });
-  if (ctx.nsRota) return r("nsRota", "NS MeliOne", "Rota NS (não saiu para a coleta) · " + base);
-  if (ehMelione10(e)) {
+  const r = (nivel: NivelExpress, curto: string, texto = curto): RiscoExpress => ({ nivel, feitas, total, texto, curto });
+  if (ctx.nsRota) return r("nsRota", "NS Express", "Rota NS (não saiu para a coleta) · " + base);
+  if (ehExpress10(e)) {
     return ctx.logouColeta
-      ? r("v1Logou", "MeliOne 1.0 · logou", "MeliOne 1.0 · já logou na coleta")
-      : r("v1", "MeliOne 1.0 · risco alto", "MeliOne 1.0 · sem visibilidade das entregas");
+      ? r("v1Logou", "Express 1.0 · logou", "Express 1.0 · já logou na coleta")
+      : r("v1", "Express 1.0 · risco alto", "Express 1.0 · sem visibilidade das entregas");
   }
   if (e.pendentes > 0 && ctx.coletando) return r("coletando", "Coletando · entregas " + fracao, base + " · já coletando");
   if (e.pendentes === 0) return r("concluidas", "Entregas concluídas");

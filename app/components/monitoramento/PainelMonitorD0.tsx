@@ -8,10 +8,10 @@ import {
   chaveOcorrencia,
   clusterDaVisita,
   fotoDaRota,
-  culpMeliPorCluster,
+  culpOpPorCluster,
   desvioDeForecast,
-  linhaCulpMeli,
-  MINIMO_CULP_MELI,
+  linhaCulpOp,
+  MINIMO_CULP_OP,
   ocorrenciasDoDia,
   opsDoCluster,
   clusterDoNome,
@@ -36,13 +36,13 @@ import {
 } from "../../lib/monitorD0";
 import { chaveId, chaveRota } from "../../lib/hb";
 import { filtroCps } from "../../lib/hubMonitor";
-import { ehMelione10, janelaDaRota, minutosDe, riscoMelione, type EntregasMelione, type RiscoMelione } from "../../lib/melioneEntregas";
-import ChipRiscoMelione from "./ChipRiscoMelione";
+import { ehExpress10, janelaDaRota, minutosDe, riscoExpress, type EntregasExpress, type RiscoExpress } from "../../lib/expressEntregas";
+import ChipRiscoExpress from "./ChipRiscoExpress";
 import { pontualidadeDasRotas, type RotaSistemaHoje } from "../../lib/pontualidadeRotas";
 import PainelPontualidade from "./PainelPontualidade";
 import BuscaPonto from "./BuscaPonto";
 import { chaveNs, STATUS_NS, type MarcaNs, type StatusNs } from "../../lib/nsDriverStatus";
-import QuadroMelione, { type LinhaMelione } from "./QuadroMelione";
+import QuadroExpress, { type LinhaExpress } from "./QuadroExpress";
 import { VisaoMapeamento } from "./VisaoMapeamento";
 import {
   comentarioDeHoje,
@@ -63,7 +63,7 @@ const RELER_MIN = 5;
 const PAUSA_EDICAO_MIN = 5;
 const CHAVE_AUTOR = "monitorD0.autor";
 const CHAVE_GRAFICOS = "monitorD0.graficosFechados";
-const CHAVE_QUADRO_MELIONE = "monitorD0.quadroMelioneFechado";
+const CHAVE_QUADRO_EXPRESS = "monitorD0.quadroExpressFechado";
 const SEM_TRATATIVA = "Sem tratativa";
 
 const int = (n: number) => n.toLocaleString("pt-BR");
@@ -149,38 +149,38 @@ type Acoes = {
 
 const FotosCtx = createContext<Record<string, string>>({});
 
-type MelioneInfo = { rotas: Set<string>; risco: (rota: string, rotaId: string) => RiscoMelione | null };
-const MelioneCtx = createContext<MelioneInfo>({ rotas: new Set(), risco: () => null });
+type ExpressInfo = { rotas: Set<string>; risco: (rota: string, rotaId: string) => RiscoExpress | null };
+const ExpressCtx = createContext<ExpressInfo>({ rotas: new Set(), risco: () => null });
 
 const linkEntregas = (id: string) =>
   "/demo/rota/" + encodeURIComponent(id) + "?site=MLB";
 
-function ChipMelione({ rota, rotaId }: { rota: string; rotaId: string }) {
-  const { rotas: melione, risco } = useContext(MelioneCtx);
-  if (!melione.has(chaveRota(rota)) && !(rotaId && melione.has("ID:" + rotaId))) return null;
+function ChipExpress({ rota, rotaId }: { rota: string; rotaId: string }) {
+  const { rotas: express, risco } = useContext(ExpressCtx);
+  if (!express.has(chaveRota(rota)) && !(rotaId && express.has("ID:" + rotaId))) return null;
   return (
     <>
-      <ChipMelioneLink rotaId={rotaId} />
-      <ChipRiscoMelione r={risco(rota, rotaId)} />
+      <ChipExpressLink rotaId={rotaId} />
+      <ChipRiscoExpress r={risco(rota, rotaId)} />
     </>
   );
 }
 
-function ChipMelioneLink({ rotaId }: { rotaId: string }) {
+function ChipExpressLink({ rotaId }: { rotaId: string }) {
   return rotaId ? (
     <a
       href={linkEntregas(rotaId)}
       target="_blank"
       rel="noreferrer"
       onClick={(e) => e.stopPropagation()}
-      title="Rota MeliOne: faz as entregas antes das coletas. Abre o monitoramento das entregas (Last Mile)."
+      title="Rota Express: faz as entregas antes das coletas. Abre o monitoramento das entregas (Last Mile)."
       className="rounded border border-[#0e7490] bg-[#ecfeff] px-1.5 text-[11px] font-semibold text-[#0e7490] hover:bg-[#cffafe]"
     >
-      MeliOne · entregas ↗
+      Express · entregas ↗
     </a>
   ) : (
-    <span title="Rota MeliOne: faz as entregas antes das coletas." className="rounded border border-[#0e7490] bg-[#ecfeff] px-1.5 text-[11px] font-semibold text-[#0e7490]">
-      MeliOne
+    <span title="Rota Express: faz as entregas antes das coletas." className="rounded border border-[#0e7490] bg-[#ecfeff] px-1.5 text-[11px] font-semibold text-[#0e7490]">
+      Express
     </span>
   );
 }
@@ -397,7 +397,7 @@ function SeletorMotivo({ o }: { o: Item }) {
     <>
         <select
           aria-label="Motivo do impacto"
-          title="Motivo do impacto (vai para o Culp Meli do Report de Fechamento)"
+          title="Motivo do impacto (vai para o Culp Op do Report de Fechamento)"
           disabled={gravando}
           value={o.trat?.motivoImpacto ?? ""}
           onChange={(e) => enviar({ motivoImpacto: e.target.value })}
@@ -543,7 +543,7 @@ function BotaoExcluir({ o, desfazer = false }: { o: Item; desfazer?: boolean }) 
           disabled={gravando}
           onClick={clicar}
           aria-label="Excluir impacto"
-          title="Excluir impacto: foi revertido e o painel não pegou (sai do Culp Meli; dá para desfazer)"
+          title="Excluir impacto: foi revertido e o painel não pegou (sai do Culp Op; dá para desfazer)"
           className="flex h-7 w-7 items-center justify-center rounded-md border border-slate-300 bg-white text-base leading-none text-slate-500 hover:border-[#cf1f14] hover:bg-[#fdeceb] hover:text-[#94160e] disabled:opacity-50"
         >
           ×
@@ -555,10 +555,10 @@ function BotaoExcluir({ o, desfazer = false }: { o: Item; desfazer?: boolean }) 
 }
 
 function VisaoFechamento({ itens, rotasForaDeCps }: { itens: Item[]; rotasForaDeCps: number }) {
-  const grupos = useMemo(() => culpMeliPorCluster(itens), [itens]);
+  const grupos = useMemo(() => culpOpPorCluster(itens), [itens]);
 
   const excluidos = useMemo(
-    () => itens.filter((o) => o.culpa.culpa === "ME" && o.excluidoDe >= MINIMO_CULP_MELI).sort((a, b) => b.excluidoDe - a.excluidoDe),
+    () => itens.filter((o) => o.culpa.culpa === "ME" && o.excluidoDe >= MINIMO_CULP_OP).sort((a, b) => b.excluidoDe - a.excluidoDe),
     [itens],
   );
   const [abertos, setAbertos] = useState<Set<string>>(new Set());
@@ -569,13 +569,13 @@ function VisaoFechamento({ itens, rotasForaDeCps }: { itens: Item[]; rotasForaDe
       else n.add(c);
       return n;
     });
-  const previa = grupos.slice(0, 3).map(linhaCulpMeli);
+  const previa = grupos.slice(0, 3).map(linhaCulpOp);
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="mb-3">
         <h2 className="text-base font-bold text-slate-900">Impactos do fechamento</h2>
         <p className="text-xs text-slate-500">
-          Culpa Meli · pontos com {MINIMO_CULP_MELI}+ pacotes pendentes · os 3 maiores clusters entram no Culp Meli do Report de
+          Culpa Operação · pontos com {MINIMO_CULP_OP}+ pacotes pendentes · os 3 maiores clusters entram no Culp Op do Report de
           Fechamento · clique no cluster para marcar o motivo de cada ponto
         </p>
         {rotasForaDeCps > 0 && (
@@ -587,7 +587,7 @@ function VisaoFechamento({ itens, rotasForaDeCps }: { itens: Item[]; rotasForaDe
       <div className="mb-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
         <p className="mb-1 text-xs font-bold uppercase tracking-wide text-slate-500">Assim vai no report</p>
         <pre className="whitespace-pre-wrap font-[inherit] text-sm text-slate-800">
-          {"*Culp Meli:*\n" + (previa.length ? previa.join("\n") : "___")}
+          {"*Culp Op:*\n" + (previa.length ? previa.join("\n") : "___")}
         </pre>
       </div>
       <div className="space-y-2">
@@ -641,7 +641,7 @@ function VisaoFechamento({ itens, rotasForaDeCps }: { itens: Item[]; rotasForaDe
         })}
         {!grupos.length && (
           <p className="py-6 text-center text-sm text-slate-500">
-            Nenhum ponto de culpa Meli com {MINIMO_CULP_MELI}+ pacotes pendentes no filtro.
+            Nenhum ponto de culpa Operação com {MINIMO_CULP_OP}+ pacotes pendentes no filtro.
           </p>
         )}
       </div>
@@ -685,7 +685,7 @@ const impactoDoPonto = (o: Ocorrencia) => (o.nivel === "ok" ? o.deixados : o.pen
 type FiltroCulpa = "todas" | "ME" | "SELLER" | "PLACE";
 const FILTROS_CULPA: { chave: FiltroCulpa; rotulo: string; cor: string }[] = [
   { chave: "todas", rotulo: "Todas", cor: "#94a3b8" },
-  { chave: "ME", rotulo: "Culpa Meli", cor: "#2563eb" },
+  { chave: "ME", rotulo: "Culpa Operação", cor: "#2563eb" },
   { chave: "SELLER", rotulo: "Culpa Seller", cor: "#ca7916" },
   { chave: "PLACE", rotulo: "Culpa Place", cor: "#7c3aed" },
 ];
@@ -717,7 +717,7 @@ function LinhaPonto({ o, porPonto = false }: { o: Item; porPonto?: boolean }) {
                 <LinkRota id={v.rotaId}>{v.rotaSemNome ? "Avulsa " + v.rotaId : v.rota}</LinkRota>
                 <span className="ml-1.5 inline-flex items-center gap-1.5 align-middle">
                   <FotoForms rota={v.rota} rotaId={v.rotaId} />
-                  <ChipMelione rota={v.rota} rotaId={v.rotaId} />
+                  <ChipExpress rota={v.rota} rotaId={v.rotaId} />
                   <BotaoComentario o={o} />
                 </span>
               </p>
@@ -772,7 +772,7 @@ function LinhaPonto({ o, porPonto = false }: { o: Item; porPonto?: boolean }) {
         <ChipForecast f={o.forecast} />
         {o.culpa.culpa && (
           <span className={"rounded px-2 py-0.5 font-medium " + CHIP_CULPA[o.culpa.culpa]}>
-            Culpa {o.culpa.culpa === "ME" ? "Meli" : o.culpa.culpa === "SELLER" ? "Seller" : "Place"}
+            Culpa {o.culpa.culpa === "ME" ? "Operação" : o.culpa.culpa === "SELLER" ? "Seller" : "Place"}
           </span>
         )}
         <span className="text-slate-500">{o.culpa.incidente}</span>
@@ -894,7 +894,7 @@ function CartaoRota({ g, aberto, alternar }: { g: GrupoRota; aberto: boolean; al
               </span>
             )}
             {g.tipo === "rota" && <FotoForms rota={g.rota} rotaId={g.rotaId} />}
-            {g.tipo === "rota" && <ChipMelione rota={g.rota} rotaId={g.rotaId} />}
+            {g.tipo === "rota" && <ChipExpress rota={g.rota} rotaId={g.rotaId} />}
             <span className="rounded border border-slate-200 px-1.5 text-[11px] text-slate-600">{g.cluster}</span>
           </div>
           <p className="mt-0.5 text-xs text-slate-500">
@@ -1433,9 +1433,9 @@ function VisaoPD({
           </div>
         ) : (
           <div>
-            <h2 className="text-base font-bold text-slate-900">PD · culpa Meli por cluster e ponto</h2>
+            <h2 className="text-base font-bold text-slate-900">PD · culpa Operação por cluster e ponto</h2>
             <p className="text-xs text-slate-500">
-              Pontos com OC culpa Meli e {MINIMO_PD}+ não coletados (preparados − coletados da tela) · {grupos.length} clusters · {nPontos}{" "}
+              Pontos com OC culpa Operação e {MINIMO_PD}+ não coletados (preparados − coletados da tela) · {grupos.length} clusters · {nPontos}{" "}
               pontos · {int(total)} pacotes ·{" "}
               {agoraTexto}
             </p>
@@ -1450,13 +1450,13 @@ function VisaoPD({
             (modoNs ? "border-slate-900 bg-slate-900 text-white" : "border-[#cf1f14] text-[#cf1f14] hover:bg-[#fdeceb]")
           }
         >
-          {modoNs ? "← Culpa Meli" : "NS DRIVER"}
+          {modoNs ? "← Culpa Operação" : "NS DRIVER"}
         </button>
       </div>
       {modoNs ? (
         <TabelaNsDriver rotas={ns} hojeBR={hojeBR} autor={autor} pontosDaRota={pontosDaRota} comentarios={comentarios} />
       ) : grupos.length === 0 ? (
-        <p className="py-6 text-center text-sm text-slate-400">Nenhum ponto com OC culpa Meli e {MINIMO_PD}+ não coletados nos filtros.</p>
+        <p className="py-6 text-center text-sm text-slate-400">Nenhum ponto com OC culpa Operação e {MINIMO_PD}+ não coletados nos filtros.</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
@@ -1653,7 +1653,7 @@ function ReportHxH({ itens, agoraTexto, carga }: { itens: Item[]; agoraTexto: st
                     <span className="text-xs font-normal text-slate-500">{o.visita.transportadora}</span>
                     <span className="inline-flex items-center gap-1.5 font-normal">
                       <FotoForms rota={o.visita.rota} rotaId={o.visita.rotaId} />
-                      <ChipMelione rota={o.visita.rota} rotaId={o.visita.rotaId} />
+                      <ChipExpress rota={o.visita.rota} rotaId={o.visita.rotaId} />
                       <BotaoComentario o={o} />
                     </span>
                   </p>
@@ -2017,9 +2017,9 @@ export default function PainelMonitorD0({
   rotasSistema,
   rotasNs,
   listaNs,
-  rotasMelione,
-  listaMelione,
-  entregasMelione,
+  rotasExpress,
+  listaExpress,
+  entregasExpress,
   outrosHubs,
   consultasPontos,
   saldosPontos,
@@ -2048,11 +2048,11 @@ export default function PainelMonitorD0({
 
   listaNs: RotaNsPd[];
 
-  rotasMelione: string[];
+  rotasExpress: string[];
 
-  listaMelione: { rota: string; rotaId: string; transportadora?: string }[];
+  listaExpress: { rota: string; rotaId: string; transportadora?: string }[];
 
-  entregasMelione: Record<string, EntregasMelione>;
+  entregasExpress: Record<string, EntregasExpress>;
 
   outrosHubs: Record<string, string>;
   saldosPontos: Record<string, SaldoPonto>;
@@ -2090,9 +2090,9 @@ export default function PainelMonitorD0({
   }, [mapeamento, saldosPontos]);
   const horaAgora = String(Math.floor(agoraMin / 60)).padStart(2, "0") + ":" + String(agoraMin % 60).padStart(2, "0");
 
-  const melione = useMemo(() => new Set(rotasMelione), [rotasMelione]);
+  const express = useMemo(() => new Set(rotasExpress), [rotasExpress]);
 
-  const riscoDaMelione = useMemo(() => {
+  const riscoDaExpress = useMemo(() => {
     const janelas = new Map<string, string[]>();
     for (const v of visitas) {
       for (const k of [v.rotaId ? "ID:" + v.rotaId : "", v.rotaSemNome ? "" : chaveRota(v.rota)]) {
@@ -2124,16 +2124,16 @@ export default function PainelMonitorD0({
       if (r.rota) inicio.set(chaveRota(r.rota), r.inicioRota);
     }
     const ns = new Set(rotasNs);
-    return (rota: string, rotaId: string): RiscoMelione | null => {
+    return (rota: string, rotaId: string): RiscoExpress | null => {
       const chaves = [rotaId ? "ID:" + rotaId : "", chaveRota(rota)].filter(Boolean);
-      const e = chaves.map((k) => entregasMelione[k]).find(Boolean);
+      const e = chaves.map((k) => entregasExpress[k]).find(Boolean);
       if (!e) return null;
       const j = janelaDaRota(chaves.flatMap((k) => janelas.get(k) ?? []));
       const ini = chaves.map((k) => inicio.get(k)).find(Boolean) ?? "";
       const logouColeta = Boolean(ini) || chaves.some((k) => noRelatorio.has(k));
       const coletando = chaves.some((k) => coletou.has(k));
       const plan = chaves.map((k) => planejado.get(k)).find(Boolean);
-      return riscoMelione(e, {
+      return riscoExpress(e, {
         inicioColetaMin: plan ? minutosDe(plan) : null,
         janelaIniMin: j.ini,
         agoraMin,
@@ -2142,8 +2142,8 @@ export default function PainelMonitorD0({
         coletando,
       });
     };
-  }, [visitas, rotasSistema, plano, rotasNs, entregasMelione, agoraMin]);
-  const infoMelione = useMemo(() => ({ rotas: melione, risco: riscoDaMelione }), [melione, riscoDaMelione]);
+  }, [visitas, rotasSistema, plano, rotasNs, entregasExpress, agoraMin]);
+  const infoExpress = useMemo(() => ({ rotas: express, risco: riscoDaExpress }), [express, riscoDaExpress]);
 
   const todasPontualidade = useMemo(() => {
     const ns = new Set(rotasNs);
@@ -2155,24 +2155,24 @@ export default function PainelMonitorD0({
     )
       .filter((r) => !ns.has(chaveRota(r.rota)) && !(r.rotaId && ns.has("ID:" + r.rotaId)))
       .map((r) =>
-        melione.has(chaveRota(r.rota)) || (r.rotaId && melione.has("ID:" + r.rotaId))
-          ? { ...r, melione: true, entregas: riscoDaMelione(r.rota, r.rotaId) }
+        express.has(chaveRota(r.rota)) || (r.rotaId && express.has("ID:" + r.rotaId))
+          ? { ...r, express: true, entregas: riscoDaExpress(r.rota, r.rotaId) }
           : r,
       );
-  }, [visitas, plano, rotasSistema, agoraMin, rotasNs, melione, riscoDaMelione]);
+  }, [visitas, plano, rotasSistema, agoraMin, rotasNs, express, riscoDaExpress]);
   const router = useRouter();
   const [atualizando, iniciar] = useTransition();
 
   const [soCps, setSoCps] = useState(false);
 
-  const [soMelione, setSoMelione] = useState<"todas" | "melione" | "v1">("todas");
+  const [soExpress, setSoExpress] = useState<"todas" | "express" | "v1">("todas");
   const ehRotaV1 = (rota: string, rotaId: string) => {
-    const e = (rotaId && entregasMelione["ID:" + rotaId]) || entregasMelione[chaveRota(rota)];
-    return Boolean(e && ehMelione10(e));
+    const e = (rotaId && entregasExpress["ID:" + rotaId]) || entregasExpress[chaveRota(rota)];
+    return Boolean(e && ehExpress10(e));
   };
   const doTipoRota = (rota: string, rotaId: string) =>
-    soMelione === "todas" || (ehRotaMelione(rota, rotaId) && (soMelione === "melione" || ehRotaV1(rota, rotaId)));
-  const ehRotaMelione = (rota: string, rotaId: string) => melione.has(chaveRota(rota)) || (rotaId !== "" && melione.has("ID:" + rotaId));
+    soExpress === "todas" || (ehRotaExpress(rota, rotaId) && (soExpress === "express" || ehRotaV1(rota, rotaId)));
+  const ehRotaExpress = (rota: string, rotaId: string) => express.has(chaveRota(rota)) || (rotaId !== "" && express.has("ID:" + rotaId));
   const cps = useMemo(() => filtroCps(outrosHubs, visitas, plano), [outrosHubs, visitas, plano]);
   const [ops, setOps] = useState<string[]>([]);
   const [clusters, setClusters] = useState<string[]>([]);
@@ -2209,20 +2209,20 @@ export default function PainelMonitorD0({
 
   const [graficosFechados, setGraficosFechados] = useState(false);
 
-  const [quadroMelioneFechado, setQuadroMelioneFechado] = useState(false);
+  const [quadroExpressFechado, setQuadroExpressFechado] = useState(false);
   useEffect(() => {
     try {
       setGraficosFechados(window.localStorage.getItem(CHAVE_GRAFICOS) === "1");
-      setQuadroMelioneFechado(window.localStorage.getItem(CHAVE_QUADRO_MELIONE) === "1");
+      setQuadroExpressFechado(window.localStorage.getItem(CHAVE_QUADRO_EXPRESS) === "1");
     } catch {
       // sem armazenamento: comeca aberto
     }
   }, []);
-  const alternarQuadroMelione = () => {
-    const novo = !quadroMelioneFechado;
-    setQuadroMelioneFechado(novo);
+  const alternarQuadroExpress = () => {
+    const novo = !quadroExpressFechado;
+    setQuadroExpressFechado(novo);
     try {
-      window.localStorage.setItem(CHAVE_QUADRO_MELIONE, novo ? "1" : "0");
+      window.localStorage.setItem(CHAVE_QUADRO_EXPRESS, novo ? "1" : "0");
     } catch {
       // sem armazenamento: so nao lembra
     }
@@ -2415,18 +2415,18 @@ export default function PainelMonitorD0({
           (!soCps || !cps.aplicavel || cps.ehCps(o.visita.rota, o.visita.rotaId, o.visita.rotaSemNome)) &&
           doTipoRota(o.visita.rota, o.visita.rotaId),
       ),
-    [todos, soCps, cps, soMelione, melione, entregasMelione], // eslint-disable-line react-hooks/exhaustive-deps
+    [todos, soCps, cps, soExpress, express, entregasExpress], // eslint-disable-line react-hooks/exhaustive-deps
   );
   const pontualidadeHub = useMemo(
     () =>
       todasPontualidade.filter(
         (r) => (!soCps || !cps.aplicavel || cps.ehCps(r.rota, r.rotaId)) && doTipoRota(r.rota, r.rotaId),
       ),
-    [todasPontualidade, soCps, cps, soMelione, melione, entregasMelione], // eslint-disable-line react-hooks/exhaustive-deps
+    [todasPontualidade, soCps, cps, soExpress, express, entregasExpress], // eslint-disable-line react-hooks/exhaustive-deps
   );
 
-  const quadroMelione = useMemo((): LinhaMelione[] => {
-    if (soMelione === "todas") return [];
+  const quadroExpress = useMemo((): LinhaExpress[] => {
+    if (soExpress === "todas") return [];
     const ns = new Set(rotasNs);
     const pont = new Map<string, (typeof todasPontualidade)[number]>();
     for (const r of todasPontualidade) {
@@ -2457,12 +2457,12 @@ export default function PainelMonitorD0({
       for (const id of pontos) estimados += estimadoDoPonto(id) || projecaoPontos[id] || 0;
       return { estimados, pontos: pontos.size };
     };
-    return listaMelione
+    return listaExpress
       .map((m) => {
         const k = chaveRota(m.rota);
 
         const rotaId =
-          m.rotaId || idDoRelatorio.get(k) || pont.get(k)?.rotaId || entregasMelione[k]?.rotaId || "";
+          m.rotaId || idDoRelatorio.get(k) || pont.get(k)?.rotaId || entregasExpress[k]?.rotaId || "";
         const pontDela = (rotaId && pont.get("ID:" + rotaId)) || pont.get(k) || null;
         return {
           rota: m.rota,
@@ -2475,16 +2475,16 @@ export default function PainelMonitorD0({
             "",
           ns: ns.has(k) || (rotaId !== "" && ns.has("ID:" + rotaId)),
           pont: pontDela,
-          risco: riscoDaMelione(m.rota, rotaId),
+          risco: riscoDaExpress(m.rota, rotaId),
           sacas: (() => {
-            const e = (rotaId && entregasMelione["ID:" + rotaId]) || entregasMelione[k];
+            const e = (rotaId && entregasExpress["ID:" + rotaId]) || entregasExpress[k];
             if (!e || !e.sacas) return null;
 
             const feitas = e.pendentes === 0 ? e.sacas : e.sacasEntregues;
             return feitas === null ? null : { feitas: Math.min(feitas, e.sacas), total: e.sacas };
           })(),
           paradas: (() => {
-            const e = (rotaId && entregasMelione["ID:" + rotaId]) || entregasMelione[k];
+            const e = (rotaId && entregasExpress["ID:" + rotaId]) || entregasExpress[k];
             if (!e || !e.paradas) return null;
 
             const pendentes = e.pendentes === 0 ? 0 : e.paradasPendentes;
@@ -2493,32 +2493,32 @@ export default function PainelMonitorD0({
           coleta: coletaDe(rotaId, k),
         };
       })
-      .filter((l) => soMelione === "melione" || ehRotaV1(l.rota, l.rotaId))
+      .filter((l) => soExpress === "express" || ehRotaV1(l.rota, l.rotaId))
       .sort((a, b) => a.rota.localeCompare(b.rota, "pt-BR", { numeric: true }));
-  }, [soMelione, listaMelione, rotasNs, todasPontualidade, visitas, riscoDaMelione, entregasMelione, estimadoRotas, estimadoDoPonto, projecaoPontos]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [soExpress, listaExpress, rotasNs, todasPontualidade, visitas, riscoDaExpress, entregasExpress, estimadoRotas, estimadoDoPonto, projecaoPontos]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const qtdMelione = useMemo(
-    () => new Set(visitas.filter((v) => ehRotaMelione(v.rota, v.rotaId)).map((v) => v.rotaId || chaveRota(v.rota))).size,
-    [visitas, melione], // eslint-disable-line react-hooks/exhaustive-deps
+  const qtdExpress = useMemo(
+    () => new Set(visitas.filter((v) => ehRotaExpress(v.rota, v.rotaId)).map((v) => v.rotaId || chaveRota(v.rota))).size,
+    [visitas, express], // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const opsDaRota = (rota: string) => opsDoCluster(clusterDoNome(rota) ?? "");
 
-  const quadroMelioneVisto = useMemo(
-    () => (ops.length ? quadroMelione.filter((l) => ops.includes(opsDaRota(l.rota))) : quadroMelione),
-    [quadroMelione, ops],
+  const quadroExpressVisto = useMemo(
+    () => (ops.length ? quadroExpress.filter((l) => ops.includes(opsDaRota(l.rota))) : quadroExpress),
+    [quadroExpress, ops],
   );
 
   const opcoes = useMemo(() => {
     const u = (f: (o: Item) => string, extra: string[] = []) =>
       [...new Set([...todosHub.map(f), ...extra].filter(Boolean))].sort((a, b) => a.localeCompare(b, "pt-BR", { numeric: true }));
     return {
-      ops: u((o) => o.ops, [...pontualidadeHub.map((r) => opsDoCluster(r.cluster)), ...quadroMelione.map((l) => opsDaRota(l.rota))]),
+      ops: u((o) => o.ops, [...pontualidadeHub.map((r) => opsDoCluster(r.cluster)), ...quadroExpress.map((l) => opsDaRota(l.rota))]),
       clusters: u((o) => o.cluster, pontualidadeHub.map((r) => r.cluster)),
       transps: u((o) => o.visita.transportadora, pontualidadeHub.map((r) => r.transportadora)),
       ocs: u(ocDe),
     };
-  }, [todosHub, pontualidadeHub, quadroMelione]);
+  }, [todosHub, pontualidadeHub, quadroExpress]);
 
   const pontualidade = useMemo(() => {
     const q = busca.trim().toLowerCase();
@@ -2710,7 +2710,7 @@ export default function PainelMonitorD0({
   const filtrosGrafico = tipos.length + clusters.length > 0;
 
   return (
-    <MelioneCtx.Provider value={infoMelione}>
+    <ExpressCtx.Provider value={infoExpress}>
     <FotosCtx.Provider value={fotos}>
     <AcoesCtx.Provider value={{ autor, salvar, motivos: todosMotivos, novoMotivo, comentarios: comentariosPd, hojeBR: dataBR }}>
       <div className="space-y-5">
@@ -2873,25 +2873,25 @@ export default function PainelMonitorD0({
               <div className="flex flex-col gap-1">
                 <span className="text-xs font-medium uppercase tracking-wide text-slate-500">Tipo de rota</span>
                 <div className="inline-flex w-full rounded-md border border-slate-300 bg-white p-0.5 text-sm">
-                  {(["todas", "melione", "v1"] as const).map((v) => (
+                  {(["todas", "express", "v1"] as const).map((v) => (
                     <button
                       key={v}
                       type="button"
-                      onClick={() => setSoMelione(v)}
-                      aria-pressed={soMelione === v}
+                      onClick={() => setSoExpress(v)}
+                      aria-pressed={soExpress === v}
                       title={
-                        v === "melione"
-                          ? "Só as rotas MeliOne do dia (tipo melione na atribuição): " + listaMelione.length + " hoje, " + qtdMelione + " já no relatório de coleta"
+                        v === "express"
+                          ? "Só as rotas Express do dia (tipo express na atribuição): " + listaExpress.length + " hoje, " + qtdExpress + " já no relatório de coleta"
                           : v === "v1"
-                            ? "MeliOne 1.0: a tela de entregas da rota está zerada (entrega e coleta não atreladas) - risco alto"
+                            ? "Express 1.0: a tela de entregas da rota está zerada (entrega e coleta não atreladas) - risco alto"
                             : "Todas as rotas"
                       }
                       className={
                         "whitespace-nowrap rounded px-2 py-1 font-semibold " +
-                        (soMelione === v ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-100")
+                        (soExpress === v ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-100")
                       }
                     >
-                      {v === "melione" ? "Só MeliOne" : v === "v1" ? "MeliOne 1.0" : "Todas"}
+                      {v === "express" ? "Só Express" : v === "v1" ? "Express 1.0" : "Todas"}
                     </button>
                   ))}
                 </div>
@@ -2998,12 +2998,12 @@ export default function PainelMonitorD0({
                 ))}
               </div>
             </div>
-            {soMelione !== "todas" && (
-              <QuadroMelione
-                linhas={quadroMelioneVisto}
-                titulo={soMelione === "v1" ? "MeliOne 1.0 de hoje" : "MeliOne de hoje"}
-                fechado={quadroMelioneFechado}
-                alternar={alternarQuadroMelione}
+            {soExpress !== "todas" && (
+              <QuadroExpress
+                linhas={quadroExpressVisto}
+                titulo={soExpress === "v1" ? "Express 1.0 de hoje" : "Express de hoje"}
+                fechado={quadroExpressFechado}
+                alternar={alternarQuadroExpress}
               />
             )}
             {areaGraficos === "pontualidade" ? (
@@ -3106,6 +3106,6 @@ export default function PainelMonitorD0({
       </div>
     </AcoesCtx.Provider>
     </FotosCtx.Provider>
-    </MelioneCtx.Provider>
+    </ExpressCtx.Provider>
   );
 }

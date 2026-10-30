@@ -1,20 +1,20 @@
 import type { Metadata } from "next";
 
-import BlocoMelione from "../../components/reports/BlocoMelione";
+import BlocoExpress from "../../components/reports/BlocoExpress";
 import NavReports from "../../components/reports/NavReports";
 import {
-  contarMelione,
-  contarMelioneSemPlaca,
-  placasMelione,
+  contarExpress,
+  contarExpressSemPlaca,
+  placasExpress,
   placasRepetidas,
-} from "../../lib/melione";
+} from "../../lib/express";
 import { getRotasPlanejadas } from "../../lib/atribuicoes";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "M1 D0 - FM-CPS",
-  description: "Placas MeliOne do dia, prontas para mandar no grupo",
+  description: "Placas Express do dia, prontas para mandar no grupo",
 };
 
 const TZ = "America/Sao_Paulo";
@@ -30,7 +30,7 @@ export default async function M1D0Page() {
   const dataBR = hojeBR();
 
   const doDia = await getRotasPlanejadas(dataBR, dataBR);
-  const placas = placasMelione(doDia);
+  const placas = placasExpress(doDia);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
@@ -38,17 +38,17 @@ export default async function M1D0Page() {
         <header className="mb-4">
           <h1 className="text-2xl font-bold">Reports</h1>
           <p className="mt-1 text-sm text-slate-600">
-            Placas MeliOne de <strong>{dataBR}</strong>, lidas da aba de
+            Placas Express de <strong>{dataBR}</strong>, lidas da aba de
             atribuicao.
           </p>
         </header>
 
         <NavReports />
 
-        <BlocoMelione
+        <BlocoExpress
           placas={placas}
-          totalRotas={contarMelione(doDia)}
-          semPlaca={contarMelioneSemPlaca(doDia)}
+          totalRotas={contarExpress(doDia)}
+          semPlaca={contarExpressSemPlaca(doDia)}
           repetidas={placasRepetidas(placas)}
         />
       </main>

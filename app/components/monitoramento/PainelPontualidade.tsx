@@ -10,7 +10,7 @@ import {
   type PontualidadeRota,
   type ProblemaPontualidade,
 } from "../../lib/pontualidadeRotas";
-import ChipRiscoMelione from "./ChipRiscoMelione";
+import ChipRiscoExpress from "./ChipRiscoExpress";
 
 const ORDEM: ProblemaPontualidade[] = ["semLogin", "primeiroAtrasado", "bipTarde", "coletaTarde", "loginAtrasado", "bipCedo", "coletaCedo"];
 
@@ -202,23 +202,23 @@ export default function PainelPontualidade({ rotas, agoraTexto }: { rotas: Pontu
                     r.rota
                   )}
                   <span className="ml-1.5 rounded border border-slate-200 px-1 text-[10px] text-slate-500">{r.cluster}</span>
-                  {r.melione &&
+                  {r.express &&
                     (r.rotaId ? (
                       <a
                         href={"/demo/rota/" + encodeURIComponent(r.rotaId) + "?site=MLB"}
                         target="_blank"
                         rel="noreferrer"
-                        title="Rota MeliOne: faz as entregas antes das coletas. Abre o monitoramento das entregas."
+                        title="Rota Express: faz as entregas antes das coletas. Abre o monitoramento das entregas."
                         className="ml-1.5 rounded border border-[#0e7490] bg-[#ecfeff] px-1 text-[10px] font-semibold text-[#0e7490]"
                       >
-                        MeliOne · entregas ↗
+                        Express · entregas ↗
                       </a>
                     ) : (
-                      <span className="ml-1.5 rounded border border-[#0e7490] bg-[#ecfeff] px-1 text-[10px] font-semibold text-[#0e7490]">MeliOne</span>
+                      <span className="ml-1.5 rounded border border-[#0e7490] bg-[#ecfeff] px-1 text-[10px] font-semibold text-[#0e7490]">Express</span>
                     ))}
-                  {r.melione && r.entregas && (
+                  {r.express && r.entregas && (
                     <span className="ml-1.5 inline-block">
-                      <ChipRiscoMelione r={r.entregas} />
+                      <ChipRiscoExpress r={r.entregas} />
                     </span>
                   )}
                 </td>

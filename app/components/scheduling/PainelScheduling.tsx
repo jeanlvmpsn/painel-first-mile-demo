@@ -13,7 +13,7 @@ import {
   type PedidoScheduling,
   type Situacao,
 } from "../../lib/schedulingTipos";
-import { ehMelione } from "../../lib/melione";
+import { ehExpress } from "../../lib/express";
 import { listarComE } from "../../lib/relatorioTipos";
 import {
   Campo,
@@ -170,7 +170,7 @@ export default function PainelScheduling({
       if (transportadoras.length && !transportadoras.includes(p.transportadora)) return false;
       if (clusters.length && !clusters.includes(p.cluster)) return false;
       if (hub !== TODAS && (p.foraDoDia || p.hub !== hub)) return false;
-      if (tipo !== TODAS && ehMelione(p.perfil) !== (tipo === "MeliOne"))
+      if (tipo !== TODAS && ehExpress(p.perfil) !== (tipo === "Express"))
         return false;
       return true;
     },
@@ -366,7 +366,7 @@ export default function PainelScheduling({
             <Select
               valor={tipo}
               setValor={setTipo}
-              opcoes={["FM", "MeliOne"]}
+              opcoes={["FM", "Express"]}
               rotuloTodas="Todos"
             />
           </Campo>

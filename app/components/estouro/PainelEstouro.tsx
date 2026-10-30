@@ -476,7 +476,7 @@ export default function PainelEstouro({
           mais de uma rota tem os pacotes repartidos na proporção da config; parada sem dado novo
           fica com o valor da Extração Config. O veículo é o que entrou na rota na atribuição
           (perfil menor/maior quando difere do pedido; rota ainda sem veículo usa o pedido),
-          reconhecido pelo nome (Toco Fixo → Toco, Melione Vuc → VUC, Yellow Pool → Van). É previsão: rota com alerta ainda pode coletar
+          reconhecido pelo nome (Toco Fixo → Toco, Express Vuc → VUC, Yellow Pool → Van). É previsão: rota com alerta ainda pode coletar
           tudo.
         </p>
       </details>

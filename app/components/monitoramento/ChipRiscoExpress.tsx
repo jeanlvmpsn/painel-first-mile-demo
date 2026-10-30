@@ -1,6 +1,6 @@
-import { RISCO_ANTES_COLETA_MIN, RISCO_PENDENTES_MIN, type NivelMelione, type RiscoMelione } from "../../lib/melioneEntregas";
+import { RISCO_ANTES_COLETA_MIN, RISCO_PENDENTES_MIN, type NivelExpress, type RiscoExpress } from "../../lib/expressEntregas";
 
-const COR_MELIONE: Record<NivelMelione, string> = {
+const COR_EXPRESS: Record<NivelExpress, string> = {
   concluidas: "border-[#1da578] bg-[#e6f6f0] text-[#0f6b4e]",
   andamento: "border-slate-300 bg-slate-50 text-slate-700",
   coletando: "border-slate-300 bg-slate-50 text-slate-600",
@@ -10,29 +10,29 @@ const COR_MELIONE: Record<NivelMelione, string> = {
   nsRota: "border-[#cf1f14] bg-[#cf1f14] text-white",
 };
 
-export default function ChipRiscoMelione({ r }: { r: RiscoMelione | null }) {
+export default function ChipRiscoExpress({ r }: { r: RiscoExpress | null }) {
   if (!r) return null;
   return (
     <span
       title={
         r.nivel === "nsRota"
-          ? "Rota MeliOne NS pelo critério do painel: não saiu para a coleta."
+          ? "Rota Express NS pelo critério do painel: não saiu para a coleta."
           : r.nivel === "v1" || r.nivel === "v1Logou"
-            ? "MeliOne 1.0: a tela de entregas desta rota está zerada - entrega e coleta não ficaram atreladas. " +
+            ? "Express 1.0: a tela de entregas desta rota está zerada - entrega e coleta não ficaram atreladas. " +
               "O motorista termina as entregas em outra rota e precisa logar na coleta depois" +
               (r.nivel === "v1" ? "; ainda não logou." : "; já logou.")
             : r.texto +
               ". Risco: faltam " + RISCO_PENDENTES_MIN + "+ entregas a " + RISCO_ANTES_COLETA_MIN +
               " min (ou menos) do início planejado da coleta."
       }
-      className={"whitespace-nowrap rounded border px-1.5 text-[11px] font-semibold " + COR_MELIONE[r.nivel]}
+      className={"whitespace-nowrap rounded border px-1.5 text-[11px] font-semibold " + COR_EXPRESS[r.nivel]}
     >
       {r.curto}
     </span>
   );
 }
 
-export function BarraEntregas({ r }: { r: RiscoMelione | null }) {
+export function BarraEntregas({ r }: { r: RiscoExpress | null }) {
   if (!r || r.total <= 0 || r.nivel === "nsRota" || r.nivel === "v1" || r.nivel === "v1Logou") return null;
   const pct = Math.round((r.feitas / r.total) * 100);
   const cor = r.nivel === "risco" ? "#ca7916" : r.nivel === "concluidas" ? "#1da578" : "#2563eb";

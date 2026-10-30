@@ -17,7 +17,7 @@ const SITUACAO: Record<SituacaoBusca, { rotulo: string; classe: string }> = {
   semInicio: { rotulo: "Sem início", classe: "bg-slate-100 text-slate-600" },
   cancelada: { rotulo: "Cancelada", classe: "bg-[#fdeceb] text-[#94160e]" },
 };
-const CULPA: Record<string, string> = { ME: "Culpa Meli", SELLER: "Culpa seller", PLACE: "Culpa place" };
+const CULPA: Record<string, string> = { ME: "Culpa Operação", SELLER: "Culpa seller", PLACE: "Culpa place" };
 const PONTUALIDADE: Record<string, string> = { onTime: "no horário", early: "cedo", late: "atrasada" };
 
 export default function BuscaPonto({

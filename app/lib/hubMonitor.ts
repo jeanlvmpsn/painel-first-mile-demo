@@ -1,6 +1,6 @@
 import { chaveId, chaveRota } from "./hb.ts";
 import { ehDeCampinas, hubDaRota, hubPeloNome } from "./hubs.ts";
-import { ehMelione } from "./melione.ts";
+import { ehExpress } from "./express.ts";
 
 export function rotasDeOutroHub(atribuicao: { rota: string; hub?: string }[]): Record<string, string> {
   const saida: Record<string, string> = {};
@@ -13,7 +13,7 @@ export function rotasDeOutroHub(atribuicao: { rota: string; hub?: string }[]): R
 }
 
 export function outrosHubsDaAtribuicao(planejadas: { rota: string; regiao?: string; tipoRota?: string }[]): Record<string, string> {
-  return rotasDeOutroHub(planejadas.filter((r) => !ehMelione(r.tipoRota)).map((r) => ({ rota: r.rota, hub: r.regiao })));
+  return rotasDeOutroHub(planejadas.filter((r) => !ehExpress(r.tipoRota)).map((r) => ({ rota: r.rota, hub: r.regiao })));
 }
 
 export type FiltroCps = {

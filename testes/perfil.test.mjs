@@ -10,7 +10,7 @@ import {
 test("junta os nomes que a API escreve de varios jeitos no mesmo porte", () => {
   assert.equal(perfilCanonico("VUC Fixo"), "VUC");
   assert.equal(perfilCanonico("VUC Elétrico"), "VUC");
-  assert.equal(perfilCanonico("MeliOne VUC"), "VUC");
+  assert.equal(perfilCanonico("Express VUC"), "VUC");
   assert.equal(perfilCanonico("Rental VUC FM"), "VUC");
   assert.equal(perfilCanonico("Vuc"), "VUC");
 
@@ -18,8 +18,8 @@ test("junta os nomes que a API escreve de varios jeitos no mesmo porte", () => {
   assert.equal(perfilCanonico("Toco Fixo"), "Toco");
   assert.equal(perfilCanonico("Medio Fixo"), "Médio");
   assert.equal(perfilCanonico("Médio"), "Médio");
-  assert.equal(perfilCanonico("Melione Van TKS 2025"), "Van");
-  assert.equal(perfilCanonico("MeliOne Van Frota Fixa"), "Van");
+  assert.equal(perfilCanonico("Express Van TKS 2025"), "Van");
+  assert.equal(perfilCanonico("Express Van Frota Fixa"), "Van");
   assert.equal(perfilCanonico("HR"), "HR");
   assert.equal(perfilCanonico("Utilitário Fixo"), "Utilitário");
   assert.equal(perfilCanonico("Carreta"), "Carreta");
@@ -57,8 +57,8 @@ test("hr so casa como palavra inteira", () => {
 });
 
 test("Yellow Pool e Van, mesmo sem a palavra van no texto", () => {
-  assert.equal(perfilCanonico("Melione Yellow Pool"), "Van");
-  assert.equal(perfilCanonico("MeliOne Yellow Pool"), "Van");
+  assert.equal(perfilCanonico("Express Yellow Pool"), "Van");
+  assert.equal(perfilCanonico("Express Yellow Pool"), "Van");
 
   assert.equal(perfilCanonico("Yellow Pool Large Van - Equipe unica"), "Van");
 });

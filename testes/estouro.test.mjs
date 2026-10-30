@@ -13,7 +13,7 @@ import {
 
 test("veiculo da config vira o tipo da tabela", () => {
   assert.equal(tipoDoVeiculo("Toco Fixo")?.tipo, "Toco");
-  assert.equal(tipoDoVeiculo("Melione Vuc Rer")?.tipo, "VUC");
+  assert.equal(tipoDoVeiculo("Express Vuc Rer")?.tipo, "VUC");
   assert.equal(tipoDoVeiculo("VUC Fixo")?.pesoMaxKg, 2200);
   assert.equal(tipoDoVeiculo("Utilitário")?.cubagemM3, 2);
   assert.equal(tipoDoVeiculo("Moto"), null);

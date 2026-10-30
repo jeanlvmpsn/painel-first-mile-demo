@@ -81,7 +81,7 @@ test("reversao: outra rota coletou depois; aguardando quem ainda vai passar", ()
   assert.deepEqual(ocorrenciasDoDia(vs).map(preocupa), [false, false, true]);
 });
 
-test("coletou 100%: nao e ocorrencia, mesmo com OC lancada; sem OC e com pacote deixado e Meli", () => {
+test("coletou 100%: nao e ocorrencia, mesmo com OC lancada; sem OC e com pacote deixado e Operação", () => {
   assert.equal(ocorrenciasDoDia(ler({ est: 50, col: 50, motivo: "Coleta Parcial", pont: "10:00hs - on_time", hora: "10:00" })).length, 0);
   const [semOc] = ocorrenciasDoDia(ler({ est: 80, col: 30, pont: "10:00hs - on_time", hora: "10:00" }));
   assert.equal(semOc.culpa.culpa, "ME");
@@ -317,12 +317,12 @@ test("avulsa que iniciou depois da consulta da tela entra como 'vai passar'", as
   assert.equal(o2.coberturaPrevista.length, 1);
 });
 
-test("Culp Meli do fechamento: top 3 clusters, transportadoras e motivos do impacto", async () => {
-  const { linhasCulpMeli, nomeCurtoTransportadora, lerMotivosImpacto } = await import("../app/lib/monitorD0.ts");
+test("Culp Op do fechamento: top 3 clusters, transportadoras e motivos do impacto", async () => {
+  const { linhasCulpOp, nomeCurtoTransportadora, lerMotivosImpacto } = await import("../app/lib/monitorD0.ts");
   assert.equal(nomeCurtoTransportadora("Alfa Logistics"), "ALFA");
   assert.equal(nomeCurtoTransportadora("Transportadora Grupo Vetor"), "VETOR");
   assert.equal(nomeCurtoTransportadora("BRAVO LOGÍSTICA"), "BRAVO");
-  assert.deepEqual(lerMotivosImpacto([["MOTIVO"], ["Chuva"], ["gap de capacidade"]]), ["Gap de capacidade", "Comportamental", "Sin drop off", "Impacto melione", "Chuva"]);
+  assert.deepEqual(lerMotivosImpacto([["MOTIVO"], ["Chuva"], ["gap de capacidade"]]), ["Gap de capacidade", "Comportamental", "Sin drop off", "Impacto express", "Chuva"]);
   const o = (cluster, transportadora, pendentes, motivo, culpa = "ME") => ({
     cluster,
     pendentes,
@@ -330,7 +330,7 @@ test("Culp Meli do fechamento: top 3 clusters, transportadoras e motivos do impa
     visita: { transportadora },
     trat: motivo ? { motivoImpacto: motivo } : undefined,
   });
-  const linhas = linhasCulpMeli([
+  const linhas = linhasCulpOp([
     o("C29", "ORION", 600, "Gap de capacidade"),
     o("C29", "Alfa Logistics", 450, "Comportamental"),
     o("C01", "BRAVO LOGÍSTICA", 500, "Gap de capacidade"),
@@ -372,8 +372,8 @@ test("mesma rota passando duas vezes no ponto: o saldo fica so na ultima passage
   assert.deepEqual(dup.map((o) => o.pendentes), [0, 50]);
 });
 
-test("impacto excluido na mao sai do Culp Meli e e lido da tratativa", async () => {
-  const { linhasCulpMeli, lerTratativas, CAB_TRATATIVAS } = await import("../app/lib/monitorD0.ts");
+test("impacto excluido na mao sai do Culp Op e e lido da tratativa", async () => {
+  const { linhasCulpOp, lerTratativas, CAB_TRATATIVAS } = await import("../app/lib/monitorD0.ts");
   const trat = lerTratativas(
     [CAB_TRATATIVAS, ["07/10/2026", "111|1", "R1", "111", "Seller", "", "", "Ana", "07/10/2026 18:00", "", "SIM"]],
     "07/10/2026",
@@ -382,7 +382,7 @@ test("impacto excluido na mao sai do Culp Meli e e lido da tratativa", async () 
   const o = (cluster, pendentes, excluido) => ({
     cluster, pendentes, culpa: { culpa: "ME" }, visita: { transportadora: "ORION" }, trat: { motivoImpacto: "", excluido },
   });
-  assert.deepEqual(linhasCulpMeli([o("C29", 500, true), o("C29", 300, false), o("C01", 200, false)]), [
+  assert.deepEqual(linhasCulpOp([o("C29", 500, true), o("C29", 300, false), o("C01", 200, false)]), [
     "C29: ORION - 300 pcts - ___",
     "C01: ORION - 200 pcts - ___",
   ]);

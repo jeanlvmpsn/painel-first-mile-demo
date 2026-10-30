@@ -62,7 +62,7 @@ test("parPerfil tira FIXO, FROTA, TKS e RENTAL do nome do perfil", () => {
   assert.equal(par("MEDIO FIXO", "VUC"), "MEDIO/VUC");
   assert.equal(par("Medio Fixo", "Vuc"), "Medio/Vuc", "a caixa original e preservada");
   assert.equal(par("Rental VUC FM", "Vuc"), "VUC FM/Vuc");
-  assert.equal(par("Melione Van TKS 2025", "MeliOne Van Frota Fixa"), "Melione Van 2025/MeliOne Van");
+  assert.equal(par("Express Van TKS 2025", "Express Van Frota Fixa"), "Express Van 2025/Express Van");
 });
 
 test("parPerfil NAO limpa quando o ruido e a unica diferenca", () => {
@@ -120,7 +120,7 @@ test("os tres campos digitados saem ___ enquanto ninguem preenche", () => {
 
 test("texto sai no formato do template do start", () => {
   const m = metricasStart(
-    [rota({ transportadora: "" }), rota({ tipoRota: "melione" })],
+    [rota({ transportadora: "" }), rota({ tipoRota: "express" })],
     1
   );
   const txt = textoStart(m, "11/09/2026", {

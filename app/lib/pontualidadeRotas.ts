@@ -1,6 +1,6 @@
 import { chaveRota } from "./hb.ts";
 import { clusterDoNome, type PlanoParada, type Visita } from "./monitorD0.ts";
-import type { RiscoMelione } from "./melioneEntregas.ts";
+import type { RiscoExpress } from "./expressEntregas.ts";
 import type { Pontualidade } from "./relatorioTipos.ts";
 
 const texto = (v: unknown) => String(v ?? "").trim();
@@ -70,8 +70,8 @@ export type PontualidadeRota = {
   logou: boolean;
   login: SituacaoLogin;
 
-  melione?: boolean;
-  entregas?: RiscoMelione | null;
+  express?: boolean;
+  entregas?: RiscoExpress | null;
 
   atrasoLoginMin: number | null;
 

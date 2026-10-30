@@ -31,7 +31,7 @@ const ESPERADO = {
   "Erro exec": "Erros",
   "Erro config": "Erros",
   "Liberação no XD": "Erros",
-  "Atrasos MeliOne": "Outros",
+  "Atrasos Express": "Outros",
   "Coleta cedo demais no place": "Outros",
   Apoio: "Outros",
   "Revertido pela mesma TSP": "Outros",

@@ -129,7 +129,7 @@ test("capacidade pelo veiculo que entrou; perfil menor/maior contra o pedido", a
 
     [chaveRota("CAMPINAS_C05_64"), { pedido: "VUC Fixo", atribuido: "" }],
 
-    [chaveRota("CAMPINAS_C05_65"), { pedido: "Van Fixa", atribuido: "MeliOne Yellow Pool" }],
+    [chaveRota("CAMPINAS_C05_65"), { pedido: "Van Fixa", atribuido: "Express Yellow Pool" }],
   ]);
   aplicarAtribuicao(rotas, porRota, chaveRota);
   const r = (n) => rotas.find((x) => x.rota === n);
@@ -147,12 +147,12 @@ test("capacidade pelo veiculo que entrou; perfil menor/maior contra o pedido", a
   assert.equal(rotas[0].rota, "CAMPINAS_C05_62");
 });
 
-test("MeliOne sem porte e Van; HR fica entre Van e VUC, 30% acima da Van", async () => {
+test("Express sem porte e Van; HR fica entre Van e VUC, 30% acima da Van", async () => {
   const { tipoDoVeiculo, aplicarAtribuicao } = await import("../app/lib/estouro.ts");
-  assert.equal(tipoDoVeiculo("MeliOne")?.tipo, "Van");
-  assert.equal(tipoDoVeiculo("Melione Fixo")?.tipo, "Van");
+  assert.equal(tipoDoVeiculo("Express")?.tipo, "Van");
+  assert.equal(tipoDoVeiculo("Express Fixo")?.tipo, "Van");
 
-  assert.equal(tipoDoVeiculo("Melione Vuc Rer")?.tipo, "VUC");
+  assert.equal(tipoDoVeiculo("Express Vuc Rer")?.tipo, "VUC");
   const hr = tipoDoVeiculo("HR Fixo");
   assert.equal(hr?.tipo, "HR");
   assert.equal(hr.pesoMaxKg, 1950);
@@ -184,7 +184,7 @@ test("capacidade pelo nome exato do veiculo na base do sistema; fora dela, a tab
     ["Bulk - VUC equipe única Pool", "MLB", "active", 2200, 400, 16],
     ["BULK - VUC PP", "MLB", "active", 2200, 400, 7.5],
     ["3/4/Médio", "MLB", "inactive", 31.7, 0, 25],
-    ["Arrow MeliOne", "MLB", "active", 5200, 280, 16.5],
+    ["Arrow Express", "MLB", "active", 5200, 280, 16.5],
   ]);
   assert.equal(base.size, 3, "o 3/4 com 31,7 kg fica de fora");
   assert.deepEqual(base.get("BULK - VUC PP"), { pesoMaxKg: 2200, cubagemM3: 7.5, ativo: true });

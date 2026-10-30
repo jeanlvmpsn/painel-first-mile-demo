@@ -7,7 +7,7 @@ import {
 } from "../../lib/fechamento";
 import { gravarFechamentoHBDoDia } from "../../lib/hbFechamentoDados";
 import { gravarDedicadasDoDia } from "../../lib/dedicadasDados";
-import { culpMeliDoDia } from "../../lib/monitorD0Dados";
+import { culpOpDoDia } from "../../lib/monitorD0Dados";
 import { textoFechamento } from "../../lib/relatorioTipos";
 import { formatarDataBR, gravarFechamentoNoHistorico } from "../../lib/sheets";
 
@@ -38,12 +38,12 @@ export async function GET(request: Request) {
       .format(agora)
       .split(":")
       .map(Number);
-    const culpMeli = await culpMeliDoDia(hojeBR, (h % 24) * 60 + m).catch(() => [] as string[]);
+    const culpOp = await culpOpDoDia(hojeBR, (h % 24) * 60 + m).catch(() => [] as string[]);
 
     const texto = textoFechamento(dados.fechamento, hojeBR, {
       schedulingsAceitos: dados.aceitos,
       rotasConfig: dados.rotasConfig,
-      manuais: { culpMeli: culpMeli.join("\n") },
+      manuais: { culpOp: culpOp.join("\n") },
     });
     const gravadoEm = new Intl.DateTimeFormat("pt-BR", {
       timeZone: "America/Sao_Paulo",
@@ -53,7 +53,7 @@ export async function GET(request: Request) {
 
     const resultado = await gravarFechamentoNoHistorico(
       CAB_HISTORICO_FECHAMENTO,
-      linhaHistoricoFechamento(dados, hojeBR, gravadoEm, { culpMeli, texto })
+      linhaHistoricoFechamento(dados, hojeBR, gravadoEm, { culpOp, texto })
     );
 
     const dedicadas = await gravarDedicadasDoDia(hojeBR, (h % 24) * 60 + m, gravadoEm).catch((e: unknown) => ({
@@ -74,7 +74,7 @@ export async function GET(request: Request) {
       ns: dados.fechamento.ns,
       rotasTT: dados.fechamento.rotasTT,
       temColeta: dados.temColeta,
-      culpMeli,
+      culpOp,
     });
   } catch (e) {
     return NextResponse.json(

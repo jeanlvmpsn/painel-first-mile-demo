@@ -162,9 +162,9 @@ export default async function PoolPage({
 
   const rotasCps = somenteCampinas(rotasDoDia);
   const emAberto = rotasCps.filter((r) => !String(r.transportadora ?? "").trim() || ehTransportadoraFake(r.transportadora)).length;
-  const melione = rotasCps.filter((r) => tipoDaRota(r.tipoRota) === "MeliOne").length;
+  const express = rotasCps.filter((r) => tipoDaRota(r.tipoRota) === "Express").length;
   const rotasComDono = rotasCps.filter(
-    (r) => String(r.transportadora ?? "").trim() && !ehTransportadoraFake(r.transportadora) && tipoDaRota(r.tipoRota) !== "MeliOne",
+    (r) => String(r.transportadora ?? "").trim() && !ehTransportadoraFake(r.transportadora) && tipoDaRota(r.tipoRota) !== "Express",
   );
   const daAtribuicao = analisar(
     rotasComDono.map((r) => ({
@@ -209,7 +209,7 @@ export default async function PoolPage({
         linhas: daAtribuicao.analise,
         rotas: rotasCps.length,
         emAberto,
-        melione,
+        express,
         assumidos: daAtribuicao.assumidos,
         motivosSemPool: daAtribuicao.motivosSemPool,
       }}

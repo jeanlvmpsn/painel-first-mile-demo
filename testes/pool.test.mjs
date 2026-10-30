@@ -138,14 +138,14 @@ test("aceitar mais do que o pool acusa pool velho", () => {
   assert.equal(b.culpaTransportadora, 0, "aceitar nao e culpa de ninguem");
 });
 
-test("pedido de Melione fica fora: o pool dele nao esta nesta planilha", () => {
+test("pedido de Express fica fora: o pool dele nao esta nesta planilha", () => {
   assert.equal(
-    motivoDeFora({ transportadora: "Alfa Logistics", perfil: "Melione VUC" }),
-    "Melione — o pool dessas rotas fica em outra base"
+    motivoDeFora({ transportadora: "Alfa Logistics", perfil: "Express VUC" }),
+    "Express — o pool dessas rotas fica em outra base"
   );
   assert.equal(
-    motivoDeFora({ transportadora: "Alfa Logistics", perfil: "Melione Yellow Pool" }),
-    "Melione — o pool dessas rotas fica em outra base"
+    motivoDeFora({ transportadora: "Alfa Logistics", perfil: "Express Yellow Pool" }),
+    "Express — o pool dessas rotas fica em outra base"
   );
 
   assert.equal(

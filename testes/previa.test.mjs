@@ -34,13 +34,13 @@ test("GAP conta rota SEM transportadora, nao rota sem veiculo", () => {
   assert.equal(m.semAtribuicao, 2);
 });
 
-test("M1 conta so MeliOne", () => {
+test("M1 conta so Express", () => {
   const m = metricasPrevia([
-    rota({ tipoRota: "melione" }),
+    rota({ tipoRota: "express" }),
     rota({ tipoRota: "first_mile" }),
     rota({ tipoRota: "" }),
   ]);
-  assert.equal(m.m1, 1, "vazio nao e MeliOne nem entra como FM chutado");
+  assert.equal(m.m1, 1, "vazio nao e Express nem entra como FM chutado");
 });
 
 test("porHub separa o sabado, que roda nos hubs satelite", () => {
@@ -99,7 +99,7 @@ test("o detalhe repete o titulo depois de uma linha em branco", () => {
 test("texto sai no formato do template", () => {
   const m = metricasPrevia([
     rota({ transportadora: "", atribuida: false }),
-    rota({ tipoRota: "melione", atribuida: false }),
+    rota({ tipoRota: "express", atribuida: false }),
   ]);
   const txt = textoPrevia(m, "12/09/2026", {
     rotasConfig: null,

@@ -24,7 +24,7 @@ no CD e os reports diários que o time manda nos grupos.
 | **Monitoramento D0** | O coração do painel: cada ponto que ficou com pacote, a culpa prévia (transportadora, seller ou agência), se outra rota ainda vai passar, o que já foi revertido e as tratativas do time. |
 | **Dedicada** | Rotas exclusivas de pontos grandes: coleta do dia, PU e histórico de 30 dias. |
 | **Upgrade** | Vendedores que deixam muitos pacotes em agências e são candidatos a ter coleta própria. |
-| **Reports** | Start do dia, fechamento, prévia do dia seguinte, GAP de rotas, H&B (pacotes grandes) e MeliOne, prontos para copiar e colar. |
+| **Reports** | Start do dia, fechamento, prévia do dia seguinte, GAP de rotas, H&B (pacotes grandes) e Express, prontos para copiar e colar. |
 
 ## Como funciona
 

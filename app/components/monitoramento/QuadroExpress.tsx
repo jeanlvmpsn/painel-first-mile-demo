@@ -2,18 +2,18 @@
 
 import { useMemo, useState } from "react";
 
-import { RISCO_ANTES_COLETA_MIN, RISCO_PENDENTES_MIN, type RiscoMelione } from "../../lib/melioneEntregas";
+import { RISCO_ANTES_COLETA_MIN, RISCO_PENDENTES_MIN, type RiscoExpress } from "../../lib/expressEntregas";
 import type { PontualidadeRota } from "../../lib/pontualidadeRotas";
-import { BarraEntregas } from "./ChipRiscoMelione";
+import { BarraEntregas } from "./ChipRiscoExpress";
 
-export type LinhaMelione = {
+export type LinhaExpress = {
   rota: string;
   rotaId: string;
   transportadora: string;
   ns: boolean;
   pont: PontualidadeRota | null;
 
-  risco: RiscoMelione | null;
+  risco: RiscoExpress | null;
 
   sacas: { feitas: number; total: number } | null;
 
@@ -34,15 +34,15 @@ const ESTILO: Record<Status, string> = {
   finalizado: "border-[#1da578] bg-[#e6f6f0] text-[#0f6b4e]",
 };
 
-function statusDe(l: LinhaMelione): { s: Status; rotulo: string; dica: string } | null {
+function statusDe(l: LinhaExpress): { s: Status; rotulo: string; dica: string } | null {
   const r = l.risco;
-  if (l.ns || r?.nivel === "nsRota") return { s: "ns", rotulo: "NS MeliOne", dica: "Rota MeliOne NS pelo critério do painel: não saiu para a coleta." };
+  if (l.ns || r?.nivel === "nsRota") return { s: "ns", rotulo: "NS Express", dica: "Rota Express NS pelo critério do painel: não saiu para a coleta." };
   if (!r) return null;
   const v1 =
-    "MeliOne 1.0: a tela de entregas desta rota está zerada - entrega e coleta não ficaram atreladas. " +
+    "Express 1.0: a tela de entregas desta rota está zerada - entrega e coleta não ficaram atreladas. " +
     "O motorista termina as entregas em outra rota e precisa logar na coleta depois";
-  if (r.nivel === "v1") return { s: "v1", rotulo: "MeliOne 1.0", dica: v1 + "; ainda não logou (risco alto)." };
-  if (r.nivel === "v1Logou") return { s: "v1Logou", rotulo: "MeliOne 1.0", dica: v1 + "; já logou." };
+  if (r.nivel === "v1") return { s: "v1", rotulo: "Express 1.0", dica: v1 + "; ainda não logou (risco alto)." };
+  if (r.nivel === "v1Logou") return { s: "v1Logou", rotulo: "Express 1.0", dica: v1 + "; já logou." };
   if (r.nivel === "concluidas") return { s: "finalizado", rotulo: "Finalizado", dica: "Entregas concluídas" };
   const rotulo = r.feitas === 0 ? "Sem início" : "Entregando";
   if (r.nivel === "risco") {
@@ -55,11 +55,11 @@ function statusDe(l: LinhaMelione): { s: Status; rotulo: string; dica: string } 
   return { s: r.feitas === 0 ? "semInicio" : "entregando", rotulo, dica: r.texto + (r.nivel === "coletando" ? " · já coletando" : "") };
 }
 
-const comEntregas = (l: LinhaMelione) =>
+const comEntregas = (l: LinhaExpress) =>
   l.risco && l.risco.total > 0 && !l.ns && !["nsRota", "v1", "v1Logou"].includes(l.risco.nivel) ? l.risco : null;
 
 type Coluna = "rota" | "transportadora" | "inicio" | "login" | "status" | "pacotes" | "sacas" | "paradas" | "evolucao" | "coleta";
-const VALOR: Record<Coluna, (l: LinhaMelione) => string | number | null> = {
+const VALOR: Record<Coluna, (l: LinhaExpress) => string | number | null> = {
   rota: (l) => l.rota,
   transportadora: (l) => l.transportadora || null,
   inicio: (l) => l.pont?.inicioPlanejado || null,
@@ -84,7 +84,7 @@ const COLUNAS: { k: Coluna; rotulo: string; dica?: string }[] = [
   { k: "transportadora", rotulo: "Transportadora" },
   { k: "inicio", rotulo: "Início plan." },
   { k: "login", rotulo: "Login coleta" },
-  { k: "status", rotulo: "Status", dica: "Ordena pela gravidade: NS, MeliOne 1.0 sem login, risco, sem início, entregando, finalizado" },
+  { k: "status", rotulo: "Status", dica: "Ordena pela gravidade: NS, Express 1.0 sem login, risco, sem início, entregando, finalizado" },
   { k: "pacotes", rotulo: "Pct entreg.", dica: "Entregas feitas / total (pcts + sacas)" },
   { k: "sacas", rotulo: "Sacas", dica: "Sacas entregues / total. Saca é um saco com vários pcts, contado além dos pcts: rota com saca costuma andar mais rápido." },
   { k: "paradas", rotulo: "Paradas realizadas", dica: "Paradas de entrega feitas / total" },
@@ -96,7 +96,7 @@ const linkColeta = (id: string) => "/demo/rota/" + encodeURIComponent(id);
 const linkEntregas = (id: string) =>
   "/demo/rota/" + encodeURIComponent(id) + "?site=MLB";
 
-function login(l: LinhaMelione) {
+function login(l: LinhaExpress) {
   if (l.ns) return <span className="font-semibold text-slate-500">NS</span>;
   const p = l.pont;
   if (!p) return <span className="text-slate-400">sem dado</span>;
@@ -122,13 +122,13 @@ function Fracao({ feitas, total, unidade }: { feitas: number; total: number; uni
 
 const vazio = <span className="text-slate-400">—</span>;
 
-export default function QuadroMelione({
+export default function QuadroExpress({
   linhas,
   titulo,
   fechado,
   alternar,
 }: {
-  linhas: LinhaMelione[];
+  linhas: LinhaExpress[];
   titulo: string;
   fechado: boolean;
   alternar: () => void;

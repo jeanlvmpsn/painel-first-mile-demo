@@ -155,7 +155,7 @@ export function metricasStart(
   for (const r of rotas) {
     const tp = String(r.transportadora ?? "").trim();
     if (!tp) semTransportadora++;
-    if (tipoDaRota(r.tipoRota) === "MeliOne") m1++;
+    if (tipoDaRota(r.tipoRota) === "Express") m1++;
     if (r.perfilMenor === undefined) continue;
     comDado++;
     if (!r.perfilMenor) continue;

@@ -17,7 +17,7 @@ import {
   type ParadaHB,
   type SellerHB,
 } from "./hb";
-import { temPlaca } from "./melione";
+import { temPlaca } from "./express";
 import { estimadoDoId, indexarMonitoring } from "./monitoringSeller";
 import { getMonitoringSeller } from "./monitoringSellerDados";
 import { consultarParada, type ResultadoParada } from "./consultaParada";

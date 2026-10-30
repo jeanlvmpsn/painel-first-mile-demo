@@ -181,7 +181,7 @@ export const CAB_HISTORICO_FECHAMENTO = [
   "OFENSORES",
   "GRAVADO_EM",
 
-  "CULP_MELI",
+  "CULP_OP",
   "TEXTO_REPORT",
 ];
 
@@ -189,7 +189,7 @@ export function linhaHistoricoFechamento(
   dados: DadosFechamento,
   dataBR: string,
   gravadoEm: string,
-  extras: { culpMeli?: string[]; texto?: string } = {}
+  extras: { culpOp?: string[]; texto?: string } = {}
 ): (string | number)[] {
   const f = dados.fechamento;
 
@@ -219,7 +219,7 @@ export function linhaHistoricoFechamento(
       .map((o) => o.transportadora + " - " + o.pacotes + " pcts")
       .join(" | "),
     gravadoEm,
-    (extras.culpMeli ?? []).join("\n"),
+    (extras.culpOp ?? []).join("\n"),
     extras.texto ?? "",
   ];
 }

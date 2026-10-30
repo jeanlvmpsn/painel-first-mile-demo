@@ -134,7 +134,7 @@ export default async function PaginaPrevia({
             <Tile
               rotulo="M1"
               valor={formatarNumero(m.m1)}
-              nota={ehSabado ? "MeliOne não roda sábado" : "MeliOne"}
+              nota={ehSabado ? "Express não roda sábado" : "Express"}
             />
             <Tile
               rotulo="Aceitos"

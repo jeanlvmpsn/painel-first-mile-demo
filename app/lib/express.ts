@@ -1,4 +1,4 @@
-export type RotaParaMelione = {
+export type RotaParaExpress = {
   rota?: string;
   placa?: string;
   data?: string;
@@ -16,19 +16,19 @@ function chave(v: string | undefined | null): string {
 
 const SEM_PLACA = new Set(["naoatribuido", "semplaca", ""]);
 
-export function ehMelione(tipoRota: string | undefined | null): boolean {
-  return /melione/i.test(String(tipoRota ?? ""));
+export function ehExpress(tipoRota: string | undefined | null): boolean {
+  return /express/i.test(String(tipoRota ?? ""));
 }
 
 export function temPlaca(placa: string | undefined | null): boolean {
   return !SEM_PLACA.has(chave(placa));
 }
 
-function rotasMelione(rotas: RotaParaMelione[]): RotaParaMelione[] {
-  const porRota = new Map<string, RotaParaMelione>();
-  const semNome: RotaParaMelione[] = [];
+function rotasExpress(rotas: RotaParaExpress[]): RotaParaExpress[] {
+  const porRota = new Map<string, RotaParaExpress>();
+  const semNome: RotaParaExpress[] = [];
   for (const r of rotas) {
-    if (!ehMelione(r.tipoRota)) continue;
+    if (!ehExpress(r.tipoRota)) continue;
     const k = chave(r.rota);
 
     if (!k) semNome.push(r);
@@ -37,19 +37,19 @@ function rotasMelione(rotas: RotaParaMelione[]): RotaParaMelione[] {
   return [...porRota.values(), ...semNome];
 }
 
-export function placasMelione(rotas: RotaParaMelione[]): string[] {
-  return rotasMelione(rotas)
+export function placasExpress(rotas: RotaParaExpress[]): string[] {
+  return rotasExpress(rotas)
     .filter((r) => temPlaca(r.placa))
     .map((r) => String(r.placa).trim().toUpperCase())
     .sort();
 }
 
-export function contarMelione(rotas: RotaParaMelione[]): number {
-  return rotasMelione(rotas).length;
+export function contarExpress(rotas: RotaParaExpress[]): number {
+  return rotasExpress(rotas).length;
 }
 
-export function contarMelioneSemPlaca(rotas: RotaParaMelione[]): number {
-  return rotasMelione(rotas).filter((r) => !temPlaca(r.placa)).length;
+export function contarExpressSemPlaca(rotas: RotaParaExpress[]): number {
+  return rotasExpress(rotas).filter((r) => !temPlaca(r.placa)).length;
 }
 
 export function placasRepetidas(
@@ -62,9 +62,9 @@ export function placasRepetidas(
     .map(([placa, rotas]) => ({ placa, rotas }));
 }
 
-export function textoMelione(placas: string[]): string {
+export function textoExpress(placas: string[]): string {
   if (placas.length === 0) {
-    return "Bom dia time,\n\nHoje não temos meliones.";
+    return "Bom dia time,\n\nHoje não temos expresss.";
   }
   const quantas =
     placas.length === 1
@@ -72,7 +72,7 @@ export function textoMelione(placas: string[]): string {
       : "são " + String(placas.length).padStart(2, "0") + " no total";
   return (
     "Bom dia time,\n\n" +
-    "Segue relação das meliones de hoje, " +
+    "Segue relação das expresss de hoje, " +
     quantas +
     "\n\n" +
     placas.join("\n")

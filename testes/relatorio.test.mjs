@@ -228,12 +228,12 @@ test("texto do fechamento sai no formato do template", () => {
   assert.ok(txt.includes("*Aderência ao perfil:* " + A_PREENCHER));
   assert.ok(txt.includes("*SPR plan:* " + A_PREENCHER));
   assert.ok(txt.includes("*Rotas Config:* " + A_PREENCHER));
-  assert.ok(txt.includes("*Culp Meli:* " + A_PREENCHER));
+  assert.ok(txt.includes("*Culp Op:* " + A_PREENCHER));
 
   const comCulp = textoFechamento(f, "25/07/2026", {
-    manuais: { culpMeli: "  3 rotas sem veiculo\nALFA - 2  " },
+    manuais: { culpOp: "  3 rotas sem veiculo\nALFA - 2  " },
   });
-  assert.ok(comCulp.includes("*Culp Meli:*\n3 rotas sem veiculo\nALFA - 2\n"));
+  assert.ok(comCulp.includes("*Culp Op:*\n3 rotas sem veiculo\nALFA - 2\n"));
 });
 
 test("PU abaixo do corte sai com a bolinha vermelha no texto", () => {

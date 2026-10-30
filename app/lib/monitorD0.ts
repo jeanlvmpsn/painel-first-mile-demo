@@ -893,7 +893,7 @@ export type Tratativa = {
   tratativaHxh: string;
 };
 
-export const MOTIVOS_IMPACTO_PADRAO = ["Gap de capacidade", "Comportamental", "Sin drop off", "Impacto melione"];
+export const MOTIVOS_IMPACTO_PADRAO = ["Gap de capacidade", "Comportamental", "Sin drop off", "Impacto express"];
 
 export function lerMotivosImpacto(linhas: string[][]): string[] {
   const vistos = new Set(MOTIVOS_IMPACTO_PADRAO.map(chave));
@@ -1022,9 +1022,9 @@ export function nomeCurtoTransportadora(nome: string): string {
 const juntarComE = (itens: string[]) =>
   itens.length <= 1 ? itens.join("") : itens.slice(0, -1).join(", ") + " e " + itens[itens.length - 1];
 
-export const MINIMO_CULP_MELI = 100;
+export const MINIMO_CULP_OP = 100;
 
-export type ClusterCulpMeli<T> = {
+export type ClusterCulpOp<T> = {
   cluster: string;
   pacotes: number;
 
@@ -1034,10 +1034,10 @@ export type ClusterCulpMeli<T> = {
   itens: T[];
 };
 
-export function culpMeliPorCluster<T extends Ocorrencia & { cluster: string; trat?: Tratativa }>(
+export function culpOpPorCluster<T extends Ocorrencia & { cluster: string; trat?: Tratativa }>(
   ocorrencias: T[],
-  minimo = MINIMO_CULP_MELI,
-): ClusterCulpMeli<T>[] {
+  minimo = MINIMO_CULP_OP,
+): ClusterCulpOp<T>[] {
   const porCluster = new Map<string, { pacotes: number; transp: Map<string, number>; motivos: Map<string, number>; itens: T[] }>();
   for (const o of ocorrencias) {
     if (o.culpa.culpa !== "ME" || o.trat?.excluido || o.pendentes <= 0 || o.pendentes < minimo) continue;
@@ -1062,16 +1062,16 @@ export function culpMeliPorCluster<T extends Ocorrencia & { cluster: string; tra
     .sort((a, b) => b.pacotes - a.pacotes);
 }
 
-export const linhaCulpMeli = (c: ClusterCulpMeli<unknown>) =>
+export const linhaCulpOp = (c: ClusterCulpOp<unknown>) =>
   c.cluster + ": " + juntarComE(c.transportadoras) + " - " + c.pacotes.toLocaleString("pt-BR") + " pcts" +
   " - " + (c.motivos.length ? c.motivos.join(" / ") : "___");
 
-export function linhasCulpMeli(
+export function linhasCulpOp(
   ocorrencias: (Ocorrencia & { cluster: string; trat?: Tratativa })[],
   top = 3,
-  minimo = MINIMO_CULP_MELI,
+  minimo = MINIMO_CULP_OP,
 ): string[] {
-  return culpMeliPorCluster(ocorrencias, minimo).slice(0, top).map(linhaCulpMeli);
+  return culpOpPorCluster(ocorrencias, minimo).slice(0, top).map(linhaCulpOp);
 }
 
 export type RotaNs = { rota: string; rotaId?: string; transportadora: string };

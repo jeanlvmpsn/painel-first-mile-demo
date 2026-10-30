@@ -18,7 +18,7 @@ import {
   lerTratativas,
   lerVisitas,
   projecaoPorPonto,
-  linhasCulpMeli,
+  linhasCulpOp,
   nsSemReversao,
   ocorrenciasDoDia,
   type ConsultaPonto,
@@ -33,7 +33,7 @@ import {
 } from "./monitorD0";
 import { getRotasPlanejadas } from "./atribuicoes";
 import { filtroCps, outrosHubsDaAtribuicao } from "./hubMonitor";
-import { lerEntregasMelione, type EntregasMelione } from "./melioneEntregas";
+import { lerEntregasExpress, type EntregasExpress } from "./expressEntregas";
 import { lerRotasSistemaHoje, type RotaSistemaHoje } from "./pontualidadeRotas";
 import { comCota, PROCESSO_ID } from "./upgradeDados";
 import { mapearPontos, type PontoMapa, type RotaConfigMapa } from "./mapeamento";
@@ -51,7 +51,7 @@ const ABA_ROTAS_PONTOS = "MONITORING_SELLER_ROTAS";
 
 const FAIXA_ROTAS_SISTEMA = "ROTAS_SISTEMA!A:AD";
 
-const FAIXA_MELIONE = "MELIONE_ENTREGAS!A:T";
+const FAIXA_EXPRESS = "EXPRESS_ENTREGAS!A:T";
 
 const ABA_HISTORICO = "HIST_PONTOS_30D";
 
@@ -71,7 +71,7 @@ export type LeituraMonitorD0 = {
 
   rotasSistema: RotaSistemaHoje[];
 
-  entregasMelione: Record<string, EntregasMelione>;
+  entregasExpress: Record<string, EntregasExpress>;
 
   consultasPontos: Record<string, ConsultaPonto>;
 
@@ -114,7 +114,7 @@ type Bruto = {
   rotas: string[][];
   motivos: string[][];
   sistema: string[][];
-  melione: string[][];
+  express: string[][];
 };
 
 const ausentes = new Map<string, number>();
@@ -210,7 +210,7 @@ async function lerPlano(
 
 async function lerPlanilhaDoPainel(): Promise<{ bruto: Bruto; quando: number }> {
   if (ultimaPlanilha && Date.now() - ultimaPlanilha.quando < VALIDADE_MS) return ultimaPlanilha;
-  const opcionais = [FAIXA_TRATATIVAS, ABA_ROTAS_PONTOS + "!A:N", FAIXA_MOTIVOS, FAIXA_ROTAS_SISTEMA, FAIXA_MELIONE].filter(
+  const opcionais = [FAIXA_TRATATIVAS, ABA_ROTAS_PONTOS + "!A:N", FAIXA_MOTIVOS, FAIXA_ROTAS_SISTEMA, FAIXA_EXPRESS].filter(
     (f) => !(ausentes.has(f) && Date.now() - (ausentes.get(f) ?? 0) < 10 * 60_000),
   );
   const ler = (ranges: string[]) =>
@@ -238,7 +238,7 @@ async function lerPlanilhaDoPainel(): Promise<{ bruto: Bruto; quando: number }> 
       trat: valores[FAIXA_TRATATIVAS] ?? [],
       rotas: valores[ABA_ROTAS_PONTOS + "!A:N"] ?? [],
       sistema: valores[FAIXA_ROTAS_SISTEMA] ?? [],
-      melione: valores[FAIXA_MELIONE] ?? [],
+      express: valores[FAIXA_EXPRESS] ?? [],
       motivos: valores[FAIXA_MOTIVOS] ?? [],
     },
   };
@@ -320,7 +320,7 @@ export async function lerMonitorD0(dataBR: string): Promise<LeituraMonitorD0> {
     rotasPontos,
     consultasPontos: lerConsultasDosPontos(b.rotas, dataBR),
     rotasSistema: lerRotasSistemaHoje(b.sistema, dataBR),
-    entregasMelione: lerEntregasMelione(b.melione, dataBR),
+    entregasExpress: lerEntregasExpress(b.express, dataBR),
     motivos: lerMotivosImpacto(b.motivos),
     mapeamento: mapearPontos({
       monitoring: linhasMonitoring,
@@ -349,7 +349,7 @@ export async function lerMonitorD0(dataBR: string): Promise<LeituraMonitorD0> {
       rotasPontos: [],
       consultasPontos: {},
       rotasSistema: [],
-      entregasMelione: {},
+      entregasExpress: {},
       saldosPontos: {},
       cargaRotas,
       projecaoPontos: {},
@@ -369,7 +369,7 @@ export function esquecerLeitura() {
   ultimaPlanilha = null;
 }
 
-export async function culpMeliDoDia(dataBR: string, agoraMin: number): Promise<string[]> {
+export async function culpOpDoDia(dataBR: string, agoraMin: number): Promise<string[]> {
   const [l, planejadas] = await Promise.all([lerMonitorD0(dataBR), getRotasPlanejadas(dataBR, dataBR).catch(() => [])]);
   if (l.erro) return [];
   const cps = filtroCps(outrosHubsDaAtribuicao(planejadas), l.visitas, l.plano);
@@ -380,7 +380,7 @@ export async function culpMeliDoDia(dataBR: string, agoraMin: number): Promise<s
     cluster: clusterDaVisita(o.visita, l.visitas, l.clusterPontos),
     trat: l.tratativas[chaveOcorrencia(o.visita)],
   }));
-  return linhasCulpMeli(itens);
+  return linhasCulpOp(itens);
 }
 
 export type NovaTratativa = {

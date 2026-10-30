@@ -296,7 +296,7 @@ export function metricasDeAtribuicao(
 export const A_PREENCHER = "___";
 
 export type CamposManuais = {
-  culpMeli?: string;
+  culpOp?: string;
   nsSemReversao?: string;
 };
 
@@ -352,7 +352,7 @@ export function textoFechamento(
     "*SPR exe:* " + n(f.sprExec === null ? null : Math.round(f.sprExec)),
     "",
 
-    "*Culp Meli:*" + (String(m.culpMeli ?? "").trim() ? "\n" + String(m.culpMeli).trim() : " " + A_PREENCHER),
+    "*Culp Op:*" + (String(m.culpOp ?? "").trim() ? "\n" + String(m.culpOp).trim() : " " + A_PREENCHER),
     "",
 
     "*NS driver e NS carrier sem reversão:* " +
