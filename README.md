@@ -1,58 +1,78 @@
-# Painel First Mile (demo)
+# Painel First Mile — versão demo
 
-Painel e automações para acompanhar, em tempo quase real, uma operação de coletas de **primeira milha** (first mile): o que está previsto, preparado e coletado; quais rotas estão sem transportadora ou motorista; quem aceitou ou recusou os pedidos de veículo; e quais transportadoras estão aderindo ao formulário de final de rota.
+Painel web para acompanhar a operação de **First Mile** (coleta de pacotes nos
+vendedores) de um centro de distribuição: atribuição de veículos, pedidos às
+transportadoras, coletas em tempo real, ocorrências por ponto, curva de chegada
+no CD e os reports diários que o time manda nos grupos.
 
-> **Dados 100% fictícios.** Este repositório é uma versão de demonstração para portfólio. Nenhuma informação real de empresa, cliente, transportadora ou motorista foi usada. Nomes, IDs, placas e volumes são gerados por script.
+> **Todos os dados desta versão são fictícios.** Hub, clusters, transportadoras,
+> sellers, motoristas, placas e pessoas são inventados e gerados por código. O
+> projeto original foi feito para uso interno; esta é uma cópia de portfólio
+> com a fonte de dados trocada por um simulador.
 
-*English summary: ops dashboard and automation suite for first-mile logistics (pickup monitoring, route assignment, carrier scheduling, end-of-route form compliance), built with Google Sheets, scheduled ETL workflows, BigQuery and Next.js. Demo version with synthetic data.*
+## O que tem no painel
 
-## O problema
+| Tela | Para que serve |
+| --- | --- |
+| **Forms final de rota** | Cruza as rotas do dia com as respostas do formulário que o motorista preenche ao terminar: pendências por transportadora e cluster, adesão ao longo do tempo, rotas que não saíram (NS). |
+| **Atribuição** | Quantas rotas de hoje, amanhã e depois ainda estão sem veículo, por transportadora, hub e cluster; veículo menor que o pedido. |
+| **Scheduling** | Pedidos de veículo às transportadoras: aceites, recusas (inclusive as feitas depois das 11h da véspera), sem resposta e cancelados. |
+| **Pool** | Carros que cada transportadora declara ter, contra os pedidos e contra a atribuição, com sinergia entre clusters e culpabilidade. |
+| **Avulsas** | Rotas extras criadas no dia para voltar em ponto que ficou com pacote: motivos, clusters, pacotes por avulsa. |
+| **Capacidade** | Risco de estouro (peso ou volume) de cada rota, comparando a carga prevista das paradas com o veículo que entrou. |
+| **Curva de chegada** | Chegadas no CD hora a hora contra o ETA planejado, com motivo de atraso ou adiantamento. |
+| **Monitoramento D0** | O coração do painel: cada ponto que ficou com pacote, a culpa prévia (transportadora, seller ou agência), se outra rota ainda vai passar, o que já foi revertido e as tratativas do time. |
+| **Dedicada** | Rotas exclusivas de pontos grandes: coleta do dia, PU e histórico de 30 dias. |
+| **Upgrade** | Vendedores que deixam muitos pacotes em agências e são candidatos a ter coleta própria. |
+| **Reports** | Start do dia, fechamento, prévia do dia seguinte, GAP de rotas, H&B (pacotes grandes) e MeliOne, prontos para copiar e colar. |
 
-A operação precisava de uma visão única, atualizada a cada poucos minutos, de várias fontes que não conversavam entre si: APIs de monitoramento, planilhas de atribuição de rotas, pedidos de veículo (scheduling), respostas de formulário e tabelas no BigQuery. Antes, isso era consolidado manualmente ou por scripts soltos.
+## Como funciona
 
-## O que o projeto faz
+Na versão real, tudo vem de planilhas do Google Sheets, alimentadas por rotinas
+que copiam os dados dos sistemas de logística e do BigQuery. O painel lê as
+abas pela API do Sheets, por **cabeçalho** (nunca por posição de coluna), e grava
+nelas o que o time registra na tela (tratativas, comentários, ajustes).
 
-- **Monitoramento de coletas:** estimado × preparado × coletado por seller e por hora (HxH), com backlog e early.
-- **Atribuição de rotas:** rotas do dia e dos próximos dias, com status de transportadora, veículo e motorista, e destaque para rotas sem TP.
-- **Scheduling:** pedidos de veículo por transportadora (aceite, recusa, recusa pós-11h, sem resposta, cancelado), com histórico.
-- **Formulário de final de rota:** cobrança de aderência por transportadora, cruzando com a chegada dos veículos.
-- **Saúde da automação:** cada fluxo grava um carimbo de sucesso ou erro (por exemplo, "sessão vencida"), exibido no cabeçalho do painel.
+Nesta demo, `getSheetsClient()` devolve uma **planilha falsa em memória**
+(`app/lib/demo/planilhaFalsa.ts`) que imita a parte da API usada pelo painel.
+Cada aba é montada por um gerador (`app/lib/demo/abas*.ts`) a partir de um
+"mundo" fictício (`app/lib/demo/mundo.ts`):
 
-## Arquitetura
+- os mesmos dados para a mesma data (semente pela data), então os históricos
+  batem entre as telas;
+- o dia de hoje **anda com o relógio**: só aparecem como visitadas as paradas
+  cujo horário já passou (antes das 11h30, a demo mostra o dia como estaria às
+  11h30);
+- o que se grava na tela fica na memória do servidor até ele reiniciar.
 
-```
-Fontes (APIs, BigQuery, formulários)
-        │
-        ▼
-Fluxos agendados de ETL  ──►  Google Sheets (camada de dados)
- (a cada 2–10 min)                    │
-                                      ▼
-                          Painel Next.js + Tailwind
-```
-
-Cada fluxo é independente, tem retry, ramo de erro e um carimbo de status. A camada de dados é uma planilha, o que deixa a operação livre para inspecionar e corrigir sem depender de um deploy.
-
-## Destaques técnicos
-
-- **Migração de 22 scripts Apps Script** para fluxos agendados, antes do desligamento da plataforma de origem.
-- **Limites tratados:** payload por execução, rate limit (429), paginação por cursor, retry com espera e travas para duas rodadas não se sobreporem.
-- **Gravação sem janela de dado vazio:** o fluxo grava em abas alternadas (A/B) e um ponteiro indica a aba ativa; a aba que o painel lê é uma fórmula sobre a ativa. Assim o painel nunca lê uma aba pela metade.
-- **Dados grandes em partes:** bases acima do limite de uma execução são divididas em trechos e unidas por fórmula.
-- **Regras de negócio explícitas:** por exemplo, hubs extras só aparecem em sábado, domingo e feriados (nacionais e locais, incluindo cálculo de Páscoa).
-- **Resiliência de sessão:** quando o cookie de uma API vence, o erro é identificado e exibido de forma legível, em vez de falhar em silêncio.
+O resto do código é o mesmo do painel original: as regras de negócio não
+sabem que a planilha é falsa.
 
 ## Stack
 
-Google Sheets · Apps Script (versão original) · fluxos agendados de ETL (versão migrada) · BigQuery / SQL · JavaScript / Python · Next.js · Tailwind CSS
+- [Next.js 16](https://nextjs.org) (App Router, Server Components) + React 19 + TypeScript
+- Tailwind CSS 4
+- Testes com o runner nativo do Node (`node --test`), ~420 casos das regras de negócio
 
-## Dados de demonstração
+## Rodando
 
-Os dados são sintéticos: transportadoras, clusters, rotas, placas e volumes inventados, com padrões plausíveis (picos por hora, recusas, rotas sem motorista) para que o painel tenha o que mostrar. Veja a pasta de dados e o gerador quando forem adicionados.
+```bash
+npm install
+npm run dev      # http://localhost:3000
+npm test         # testes das regras
+npm run build    # build de produção
+```
 
-## Estrutura do repositório
+Não precisa de variável de ambiente nem de credencial.
 
-> Em montagem. Este README descreve o projeto; os arquivos da demo (gerador de dados, painel e exemplos de fluxo) serão adicionados.
+## Estrutura
 
-## Autor
-
-Jean ([@jeanlvmpsn](https://github.com/jeanlvmpsn)). Dados e automação aplicados à logística.
+```
+app/
+  <tela>/page.tsx        páginas (Server Components)
+  api/                   rotas usadas pelas telas para ler e gravar
+  components/            componentes de cada tela
+  lib/                   regras de negócio (funções puras) e leitura das abas (*Dados.ts)
+  lib/demo/              simulador: planilha falsa e geradores de dados
+testes/                  testes das regras de negócio
+```
